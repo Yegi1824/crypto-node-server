@@ -428,7 +428,7 @@ router.put('/actualReplenishWallets/:id', async (req, res) => {
   }
 });
 
-// Создание новой сделки
+/*// Создание новой сделки
 router.post('/deals', async (req, res) => {
   try {
     const newDeal = new Deal(req.body);
@@ -459,7 +459,7 @@ router.put('/deals/close/:tradeID', async (req, res) => {
   } catch (err) {
     res.status(500).json({message: err.message});
   }
-});
+});*/
 
 
 // Получение активных сделок для пользователя

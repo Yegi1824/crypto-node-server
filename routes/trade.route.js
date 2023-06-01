@@ -1,7 +1,41 @@
 const express = require('express');
 const axios = require("axios");
+const Deal = require("../models/deal.model");
 
 const router = express.Router();
+
+// Создание новой сделки
+router.post('/deals/openDeal', async (req, res) => {
+  try {
+    const newDeal = new Deal(req.body);
+    await newDeal.save();
+    res.status(201).json(newDeal);
+  } catch (err) {
+    res.status(500).json({message: err.message});
+  }
+});
+
+// Закрытие сделки
+router.put('/deals/closeDeal/:tradeID', async (req, res) => {
+  try {
+    const tradeID = req.params.tradeID;
+    const {sDealResultPNL} = req.body;
+
+    const deal = await Deal.findOneAndUpdate(
+        {tradeID: tradeID},
+        {dealStatus: 'closed', sDealResultPNL: sDealResultPNL},
+        {new: true}
+    );
+
+    if (!deal) {
+      return res.status(404).json({message: 'Deal not found'});
+    }
+
+    res.status(200).json(deal);
+  } catch (err) {
+    res.status(500).json({message: err.message});
+  }
+});
 
 router.get('/getAllSymbols', async (req, res) => {
   try {

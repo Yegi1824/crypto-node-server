@@ -21,17 +21,6 @@ const userSchema = new Schema({
   sBalance_Demo: {type: String, default: '10000'}
 });
 
-/*// Pre-save hook for hashing the password
-userSchema.pre('save', async function (next) {
-  const user = this;
-  if (user.isModified('sPassword')) {
-    const salt = await bcrypt.genSalt(10);
-    const hash = await bcrypt.hash(user.sPassword, salt);
-    user.sPassword = hash;
-  }
-  next();
-});*/
-
 // Compare password method
 userSchema.methods.comparePassword = function (candidatePassword) {
   const user = this;
