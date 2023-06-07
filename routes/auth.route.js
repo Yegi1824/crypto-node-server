@@ -355,7 +355,7 @@ router.get('/actualReplenishWallets', async (req, res) => {
   }
 })
 
-router.put('/user/:id/replenish', async (req, res) => {
+/*router.put('/user/:id/replenish', async (req, res) => {
   try {
     const {id} = req.params;
     const {nReplenishAmount} = req.body;
@@ -378,9 +378,9 @@ router.put('/user/:id/replenish', async (req, res) => {
   } catch (err) {
     res.status(500).json({message: err.message});
   }
-})
+})*/
 
-router.put('/user/:id/withdraw', async (req, res) => {
+/*router.put('/user/:id/withdraw', async (req, res) => {
   try {
     const {id} = req.params;
     const {nWithdrawAmount, sWallet} = req.body;
@@ -404,7 +404,7 @@ router.put('/user/:id/withdraw', async (req, res) => {
   } catch (err) {
     res.status(500).json({message: err.message});
   }
-})
+})*/
 
 router.put('/actualReplenishWallets/:id', async (req, res) => {
   try {
@@ -428,52 +428,18 @@ router.put('/actualReplenishWallets/:id', async (req, res) => {
   }
 });
 
-/*// Создание новой сделки
-router.post('/deals', async (req, res) => {
-  try {
-    const newDeal = new Deal(req.body);
-    await newDeal.save();
-    res.status(201).json(newDeal);
-  } catch (err) {
-    res.status(500).json({message: err.message});
-  }
-});
-
-// Закрытие сделки
-router.put('/deals/close/:tradeID', async (req, res) => {
-  try {
-    const tradeID = req.params.tradeID;
-    const {sDealResultPNL} = req.body;
-
-    const deal = await Deal.findOneAndUpdate(
-      {tradeID: tradeID},
-      {dealStatus: 'closed', sDealResultPNL: sDealResultPNL},
-      {new: true}
-    );
-
-    if (!deal) {
-      return res.status(404).json({message: 'Deal not found'});
-    }
-
-    res.status(200).json(deal);
-  } catch (err) {
-    res.status(500).json({message: err.message});
-  }
-});*/
-
-
 // Получение активных сделок для пользователя
-router.get('/users/:userId/activeDeals', async (req, res) => {
+/*router.get('/users/:userId/activeDeals', async (req, res) => {
   try {
     const deals = await Deal.find({userID: req.params.userId, dealStatus: 'active'});
     res.status(200).json(deals);
   } catch (err) {
     res.status(500).json({message: err.message});
   }
-});
+});*/
 
 // Получение закрытых сделок для пользователя
-router.post('/users/:userId/closedDeals', async (req, res) => {
+/*router.post('/users/:userId/closedDeals', async (req, res) => {
   const {bDemoAccount} = req.body;
 
   try {
@@ -482,6 +448,6 @@ router.post('/users/:userId/closedDeals', async (req, res) => {
   } catch (err) {
     res.status(500).json({message: err.message});
   }
-});
+});*/
 
 module.exports = router;

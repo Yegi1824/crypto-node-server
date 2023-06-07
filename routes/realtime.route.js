@@ -9,41 +9,24 @@ let previousClosePrice = null;
 
 const router = express.Router();
 
-router.post('/requestData', async (req, res) => {
-  const {symbol, interval} = req.body;
+router.get('/', async (req, res) => {
+    const { symbol, timeframe } = req.query;
+    try {
+        const response = await axios.get('https://api.binance.com/api/v3/klines', {
+            params: {
+                symbol: symbol,
+                interval: timeframe,
+            },
+        });
 
-  try {
-    // Fetch historical data
-    const historicalData = await fetchBinanceData(symbol, interval);
-    const manipulatedData = manipulateData(historicalData, symbol, priceChange);
-
-    // Subscribe to real-time data (simulated)
-    const startTime = new Date().getTime();
-    const duration = 5 * 60 * 1000; // 5 minutes in milliseconds
-
-    const klineData = klineDataCache.get(symbol);
-    if (klineData) {
-      handleMessage(
-        {
-          emit: () => {
-          }
-        },
-        JSON.stringify({k: klineData}),
-        symbol,
-        startTime,
-        duration,
-        priceChange
-      );
+        res.send(response.data);
+    } catch (error) {
+        console.error(`Error fetching historical data for ${symbol}:`, error);
+        res.status(500).send({ error: 'Error fetching historical data' });
     }
-
-    // Respond with both historical and real-time data
-    res.json({historicalData: manipulatedData, realTimeData: klineData});
-  } catch (err) {
-    res.status(500).json({message: err.message});
-  }
 });
 
-router.post('/requestActiveTradesPrice', async (req, res) => {
+/*router.post('/requestActiveTradesPrice', async (req, res) => {
   const {symbols} = req.body;
   const interval = '1d';
 
@@ -81,7 +64,7 @@ router.post('/requestActiveTradesPrice', async (req, res) => {
   } catch (err) {
     res.status(500).json({message: err.message});
   }
-});
+});*/
 
 /*
 router.post('/setPriceChange', (req, res) => {
@@ -91,20 +74,20 @@ router.post('/setPriceChange', (req, res) => {
 });
 */
 
-router.post('/setPriceChange', (req, res) => {
+/*router.post('/setPriceChange', (req, res) => {
   const {symbol, priceChange} = req.body;
   setPriceChange(symbol, priceChange);
   res.json({message: 'Price change set successfully'});
-});
+});*/
 
 /*function setPriceChange(newPriceChange) {
   priceChange = parseFloat(newPriceChange);
 }*/
-function setPriceChange(symbol, newPriceChange) {
+/*function setPriceChange(symbol, newPriceChange) {
   priceChange[symbol] = parseFloat(newPriceChange);
-}
+}*/
 
-async function fetchBinanceData(symbol, interval) {
+/*async function fetchBinanceData(symbol, interval) {
   const response = await axios.get('https://api.binance.com/api/v3/klines', {
     params: {
       symbol,
@@ -119,7 +102,7 @@ function manipulateData(data, symbol, priceChange) {
   // Измените только последнюю свечу
   const lastCandle = data[data.length - 1];
   const closePrice = parseFloat(lastCandle[4]);
-  const newClosePrice = closePrice * (1 + (priceChange[symbol] || 0)); /*priceChange*/
+  const newClosePrice = closePrice * (1 + (priceChange[symbol] || 0)); /!*priceChange*!/
 
   lastCandle[4] = newClosePrice.toFixed(2);
 
@@ -174,6 +157,6 @@ function getPriceChangeFactor(startTime, duration, initialPriceChange) {
   } else {
     return initialPriceChange - ((elapsedTime - duration) / duration) * initialPriceChange;
   }
-}
+}*/
 
 module.exports = router;
