@@ -7,7 +7,7 @@ const path = require("path");
   origin: '*'
 }));*/
 app.use(cors({
-  origin: 'https://startcryptotrade.com/'
+  origin: 'https://startcryptotrade.com'
 }));
 
 app.use(express.json());
