@@ -10,7 +10,7 @@ app.use(express.urlencoded({extended: false}));
 const mongoose = require('mongoose');
 
 // Connect to MongoDB
-const uri = 'mongodb+srv://yegizavr:yegizavr123@cluster0.rgzhbcz.mongodb.net/test?retryWrites=true&w=majority';
+const uri = 'mongodb+srv://yegizavr:yegizavr123@cluster0.rgzhbcz.mongodb.net/˚?retryWrites=true&w=majority';
 mongoose.connect(uri, {useNewUrlParser: true, useUnifiedTopology: true});
 
 const connection = mongoose.connection;
