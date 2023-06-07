@@ -3,9 +3,13 @@ const cors = require('cors');
 const app = express();
 const path = require("path");
 
-app.use(cors({
+/*app.use(cors({
   origin: '*'
+}));*/
+app.use(cors({
+  origin: 'https://startcryptotrade.com/'
 }));
+
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 
