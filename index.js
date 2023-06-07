@@ -4,6 +4,6 @@ const io = require('./socket').initSocketIO(server); // Передаем сер�
 
 const PORT = 3001;
 
-server.listen(PORT, () => {
-  console.log(`Сервер слушает на порту ${PORT}`);
+app.listen(PORT, '0.0.0.0', function() {
+  console.log(`Server listening on port ${port}`);
 });
