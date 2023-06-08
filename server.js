@@ -37,19 +37,19 @@ app.use('/api/realtime', realtimeDataRoute);
 const tradeRoute = require('./routes/trade.route')
 app.use('/api/trade', tradeRoute);
 
-/*//Решение ошибка с обновлением страницы (cannot find ....)
+//Решение ошибка с обновлением страницы (cannot find ....)
 app.get('*', (req, res) => {
   let subdomain = req.hostname.split('.')[0];
   if (subdomain === 'shopcryptobroker') {
     res.sendFile('/home/h57967c/public_html/index.html');
   } else if (subdomain === 'startcryptotrade') {
-    res.sendFile('/home/???/public_html/index.html');
+    res.sendFile('/home/startcry/public_html/index.html');
   } else if (subdomain === 'admin') {
     res.sendFile(`/home/h57967c/admin.shopcryptobroker.com/index.html`);
   }
 });
 
-app.get('*', (req, res) => {
+/*app.get('*', (req, res) => {
   res.sendFile('/home/h57967c/public_html/index.html');
 });*/
 
