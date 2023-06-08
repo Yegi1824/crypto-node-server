@@ -39,14 +39,16 @@ app.use('/api/trade', tradeRoute);
 
 //Решение ошибка с обновлением страницы (cannot find ....)
 app.get('*', (req, res) => {
-  let subdomain = req.hostname.split('.')[0];
+
+  res.sendFile('/var/www/startcryptot_usr/data/www/startcryptotrade.com/index.html')
+/*  let subdomain = req.hostname.split('.')[0];
   if (subdomain === 'shopcryptobroker') {
     res.sendFile('/home/h57967c/public_html/index.html');
   } else if (subdomain === 'startcryptotrade') {
     res.sendFile('/home/startcry/public_html/index.html');
   } else if (subdomain === 'admin') {
     res.sendFile(`/home/h57967c/admin.shopcryptobroker.com/index.html`);
-  }
+  }*/
 });
 
 /*app.get('*', (req, res) => {
