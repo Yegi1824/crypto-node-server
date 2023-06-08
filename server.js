@@ -7,7 +7,7 @@ const path = require("path");
   origin: '*'
 }));*/
 app.use(cors({
-  origin: 'https://startcryptotrade.com'
+  origin: '*'
 }));
 
 app.use(express.json());
@@ -50,9 +50,9 @@ app.get('*', (req, res) => {
   } else if (subdomain === 'admin') {
     res.sendFile(`/home/h57967c/admin.shopcryptobroker.com/index.html`);
   }
-});*/
+});
 
-/*app.get('*', (req, res) => {
+app.get('*', (req, res) => {
   res.sendFile('/home/h57967c/public_html/index.html');
 });*/
 

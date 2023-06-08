@@ -9,7 +9,7 @@ let priceChange = {};
 function initSocketIO(server) {
     const io = socketIo(server, {
         cors: {
-            origin: "*", // или ваш конкретный URL-адрес, если вы хотите ограничить доступ
+            origin: "*",
         }
     });
 
