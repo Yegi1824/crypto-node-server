@@ -40,7 +40,7 @@ app.use('/api/trade', tradeRoute);
 //Решение ошибка с обновлением страницы (cannot find ....)
 app.get('*', (req, res) => {
 
-  res.sendFile('/var/www/startcryptot_usr/data/www/startcryptotrade.com/index.html')
+  res.sendFile('/var/www/startcryptot_usr31/data/www/startcryptotrade.com/index.html')
 /*  let subdomain = req.hostname.split('.')[0];
   if (subdomain === 'shopcryptobroker') {
     res.sendFile('/home/h57967c/public_html/index.html');
