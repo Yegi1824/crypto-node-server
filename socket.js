@@ -291,35 +291,24 @@ function initSocketIO(server) {
             // Получение текущей цены для валютной пары данной сделки
             const currentPrice = await getCurrentPrice(deal.symbol);
 
-            console.log('currentPrice', currentPrice)
             // Проверка условий для закрытия сделки
             if (deal.tradeType === 'buy') {
                 if (parseFloat(deal.stopLoss) >= currentPrice || parseFloat(deal.takeProfit) <= currentPrice) {
-                    console.log('BUY DEAL CLOSED currentPrice', currentPrice)
-                    console.log('BUY DEAL CLOSED deal', deal)
-                    console.log('BUY DEAL CLOSED deal.stopLoss', deal.stopLoss)
-                    console.log('BUY DEAL CLOSED deal.takeProfit', deal.takeProfit)
-                    // Закрытие сделки и обновление ее в базе данных
                     await closeDeal(deal);
                 }
             }else if (deal.tradeType === 'sell') {
                 if (parseFloat(deal.stopLoss) <= currentPrice || parseFloat(deal.takeProfit) >= currentPrice) {
-                    console.log('SELL DEAL CLOSED currentPrice', currentPrice)
-                    console.log('SELL DEAL CLOSED deal', deal)
-                    console.log('SELL DEAL CLOSED deal.stopLoss', deal.stopLoss)
-                    console.log('SELL DEAL CLOSED deal.takeProfit', deal.takeProfit)
-                    // Закрытие сделки и обновление ее в базе данных
                     await closeDeal(deal);
                 }
             }
         }
-    }, 60000);
-
+    }, 10000);
 
     const connections = new Map();
     // Настройка сокета для обмена данными между сервером и клиентом
     io.on('connection', (socket) => {
-        console.log(`Клиент подключен. ID: ${socket.id}, время: ${new Date()}`);
+        let ip = socket.request.headers['x-forwarded-for'] || socket.request.connection.remoteAddress;
+        console.log(`Клиент подключен. IP: ${ip}, время: ${new Date()}`);
 
         socket.on('updateClosedDeals', updateAndGetClosedDeals)
         socket.on('updateDeals', async (data) => {
