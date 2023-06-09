@@ -291,8 +291,13 @@ function initSocketIO(server) {
             // Получение текущей цены для валютной пары данной сделки
             const currentPrice = await getCurrentPrice(deal.symbol);
 
+            console.log('currentPrice', currentPrice)
             // Проверка условий для закрытия сделки
             if (parseFloat(deal.stopLoss) >= currentPrice || parseFloat(deal.takeProfit) <= currentPrice) {
+                console.log('DEAL CLOSED currentPrice', currentPrice)
+                console.log('DEAL CLOSED deal', deal)
+                console.log('DEAL CLOSED deal.stopLoss', deal.stopLoss)
+                console.log('DEAL CLOSED deal.takeProfit', deal.takeProfit)
                 // Закрытие сделки и обновление ее в базе данных
                 await closeDeal(deal);
             }
