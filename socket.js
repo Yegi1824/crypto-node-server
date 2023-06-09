@@ -293,13 +293,24 @@ function initSocketIO(server) {
 
             console.log('currentPrice', currentPrice)
             // Проверка условий для закрытия сделки
-            if (parseFloat(deal.stopLoss) >= currentPrice || parseFloat(deal.takeProfit) <= currentPrice) {
-                console.log('DEAL CLOSED currentPrice', currentPrice)
-                console.log('DEAL CLOSED deal', deal)
-                console.log('DEAL CLOSED deal.stopLoss', deal.stopLoss)
-                console.log('DEAL CLOSED deal.takeProfit', deal.takeProfit)
-                // Закрытие сделки и обновление ее в базе данных
-                await closeDeal(deal);
+            if (deal.tradeType === 'buy') {
+                if (parseFloat(deal.stopLoss) >= currentPrice || parseFloat(deal.takeProfit) <= currentPrice) {
+                    console.log('BUY DEAL CLOSED currentPrice', currentPrice)
+                    console.log('BUY DEAL CLOSED deal', deal)
+                    console.log('BUY DEAL CLOSED deal.stopLoss', deal.stopLoss)
+                    console.log('BUY DEAL CLOSED deal.takeProfit', deal.takeProfit)
+                    // Закрытие сделки и обновление ее в базе данных
+                    await closeDeal(deal);
+                }
+            }else if (deal.tradeType === 'sell') {
+                if (parseFloat(deal.stopLoss) <= currentPrice || parseFloat(deal.takeProfit) >= currentPrice) {
+                    console.log('SELL DEAL CLOSED currentPrice', currentPrice)
+                    console.log('SELL DEAL CLOSED deal', deal)
+                    console.log('SELL DEAL CLOSED deal.stopLoss', deal.stopLoss)
+                    console.log('SELL DEAL CLOSED deal.takeProfit', deal.takeProfit)
+                    // Закрытие сделки и обновление ее в базе данных
+                    await closeDeal(deal);
+                }
             }
         }
     }, 60000);
