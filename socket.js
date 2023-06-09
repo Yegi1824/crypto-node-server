@@ -308,7 +308,7 @@ function initSocketIO(server) {
     // Настройка сокета для обмена данными между сервером и клиентом
     io.on('connection', (socket) => {
         let ip = socket.request.headers['x-forwarded-for'] || socket.request.connection.remoteAddress;
-        console.log(`Клиент подключен. IP: ${ip}, время: ${new Date()}`);
+        console.log(`Клиент подключен. IP: ${ip}, ID: ${socket.id}, время: ${new Date()}`);
 
         socket.on('updateClosedDeals', updateAndGetClosedDeals)
         socket.on('updateDeals', async (data) => {
@@ -433,7 +433,8 @@ function initSocketIO(server) {
         });
 
         socket.on('disconnect', () => {
-            console.log(`Клиент отключен. ID: ${socket.id}, время: ${new Date()}\``);
+            let ip = socket.request.headers['x-forwarded-for'] || socket.request.connection.remoteAddress;
+            console.log(`Клиент отключен. IP: ${ip}, ID: ${socket.id}, время: ${new Date()}`);
 
             // Закрываем WebSocket при отключении клиента
             if (connections.has(socket.id)) {
