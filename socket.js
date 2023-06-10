@@ -97,36 +97,9 @@ function initSocketIO(server) {
 
         let nPnlPercentage = (nPriceDifference * 100) / openPrice;
         sExpectedPNL_Return = nPnlPercentage.toFixed(2) + '%' + ' ' + '( ' + (dealAmount * nPnlPercentage / 100).toFixed(2) + '$ )';
-        // }
-        // })
 
         return sExpectedPNL_Return;
     }
-
-    /*function manipulateData(data, symbol, priceChange) {
-        let adjustedClosePrices = [];
-        return data.map((candle, index) => {
-            const closePrice = parseFloat(candle[4]);
-            const newClosePrice = closePrice * (1 + priceChange);
-            adjustedClosePrices[index] = newClosePrice.toFixed(8);
-            if (index > 0) {
-                candle[1] = adjustedClosePrices[index - 1];
-            }
-            candle[4] = adjustedClosePrices[index];
-            return candle;
-        });
-    }*/
-
-    /*function manipulateData(data, symbol, priceChange) {
-        // Измените только последнюю свечу
-        const lastCandle = data[data.length - 1];
-        const closePrice = parseFloat(lastCandle[4]);
-        const newClosePrice = closePrice * (1 + (priceChange[symbol] || 0)); /!*priceChange*!/
-
-        lastCandle[4] = newClosePrice.toFixed(2);
-
-        return data;  // Возвращаем данные без изменения всех свечей
-    }*/
 
     async function manipulateKlineData(klineData, symbol, initialPriceChange) {
         const updatedKlineData = {...klineData};
@@ -191,122 +164,123 @@ function initSocketIO(server) {
         return Number((dealAmount * nPnlPercentage / 100).toFixed(2));
     }
 
-    async function updateAndGetClosedDeals({sID_User}) {
-        const user = await User.findById(sID_User);
-
-        const closedDeals = await Deal.find(
-            {
-                dealStatus: 'closed',
-                userID: sID_User,
-                bDemoAccount: user.bDemoAccount
-            }
-        );
-
-        const activeDeals = await Deal.find(
-            {
-                dealStatus: 'active',
-                userID: sID_User,
-                bDemoAccount: user.bDemoAccount
-            }
-        );
-        console.log(new Date() + ':' + '[updateDeals]: activeTradesListChanged')
-        io.emit('activeTradesListChanged', activeDeals)
-
-        console.log(new Date() + ':' + '[updateClosedDeals]: closedTradesListChanged')
-        io.emit('closedTradesListChanged', closedDeals)
-
-        io.emit('closeDeal_Success', {success: true})
-    }
-
-    async function closeDeal(data) {
-        try {
-            const tradeID = data.tradeID;
-
-            const deal = await Deal.findOne({tradeID: tradeID})
-
-            const dealAmount = (deal.amount * deal.leverage);
-            const sDealResultPNL = await getsDealResultPNL(deal.symbol, deal.price, dealAmount, deal.tradeType)
-
-            await Deal.updateOne(
-                {tradeID: tradeID},
-                {dealStatus: 'closed', sDealResultPNL: sDealResultPNL},
-                {new: true}
-            )
-
-            if (!deal) {
-                console.log(new Date() + ':' + '[closeDeal]:Deal not found')
-                io.emit('closeDeal_Failed', {success: false, message: 'Deal not found'})
-            }
-
-            //Успешное закрытие сделки
-            console.log(new Date() + ':' + '[closeDeal]:Success,' + data.tradeID)
-            //Обновляем пользователя
-            const user = await User.findById(deal.userID);
-            if (user.bDemoAccount) {
-                const sUpdatedBalance = Number(String(Number(user.sBalance_Demo)
-                    + deal.amount
-                    + await getnDealResultSum(deal.symbol, deal.price, dealAmount, deal.tradeType))).toFixed(2)
-                await updateAndGetUser(deal.userID, 'balanceDemo', sUpdatedBalance, true);
-                await updateAndGetClosedDeals({sID_User: deal.userID})
-            } else {
-                const sUpdatedBalance = Number(String(Number(user.sBalance)
-                    + deal.amount
-                    + await getnDealResultSum(deal.symbol, deal.price, dealAmount, deal.tradeType))).toFixed(2)
-                await updateAndGetUser(deal.userID, 'balance', sUpdatedBalance, false);
-                await updateAndGetClosedDeals({sID_User: deal.userID})
-            }
-        } catch (err) {
-            console.log(new Date() + ':' + '[closeDeal]:' + err.message)
-            io.emit('closeDeal_Failed', {success: false, message: err.message})
-        }
-    }
-
-    async function updateAndGetUser(sID_User, sKey_Param, sValue) {
-        console.log('[updateAndGetUser], sID_User:', sID_User, 'sKey_Param:', sKey_Param)
-        let user_Return;
-        if (sKey_Param === 'balance') {
-            user_Return = await User.findOneAndUpdate(
-                {_id: sID_User},
-                {$set: {sBalance: sValue}},
-                {new: true}
-            )
-        } else if (sKey_Param === 'getUser') {
-            user_Return = await User.findById(sID_User);
-        } else if (sKey_Param === 'balanceDemo') {
-            user_Return = await User.findOneAndUpdate(
-                {_id: sID_User},
-                {$set: {sBalance_Demo: sValue}},
-                {new: true}
-            )
-        }
-
-        io.emit('userUpdated', user_Return)
-    }
-
-    setInterval(async () => {
-        // Получение всех активных сделок
-        const activeDeals = await Deal.find({dealStatus: 'active'});
-
-        for (const deal of activeDeals) {
-            // Получение текущей цены для валютной пары данной сделки
-            const currentPrice = await getCurrentPrice(deal.symbol);
-
-            // Проверка условий для закрытия сделки
-            if (deal.tradeType === 'buy') {
-                if (parseFloat(deal.stopLoss) >= currentPrice || parseFloat(deal.takeProfit) <= currentPrice) {
-                    await closeDeal(deal);
-                }
-            }else if (deal.tradeType === 'sell') {
-                if (parseFloat(deal.stopLoss) <= currentPrice || parseFloat(deal.takeProfit) >= currentPrice) {
-                    await closeDeal(deal);
-                }
-            }
-        }
-    }, 10000);
-
     const connections = new Map();
     // Настройка сокета для обмена данными между сервером и клиентом
     io.on('connection', (socket) => {
+        const interval = setInterval(async () => {
+            // Получение всех активных сделок
+            const activeDeals = await Deal.find({dealStatus: 'active'});
+
+            for (const deal of activeDeals) {
+                // Получение текущей цены для валютной пары данной сделки
+                const currentPrice = await getCurrentPrice(deal.symbol);
+
+                // Проверка условий для закрытия сделки
+                if (deal.tradeType === 'buy') {
+                    if (parseFloat(deal.stopLoss) >= currentPrice || parseFloat(deal.takeProfit) <= currentPrice) {
+                        await closeDeal(deal);
+                    }
+                }else if (deal.tradeType === 'sell') {
+                    if (parseFloat(deal.stopLoss) <= currentPrice || parseFloat(deal.takeProfit) >= currentPrice) {
+                        await closeDeal(deal);
+                    }
+                }
+            }
+        }, 10000);
+
+
+        async function updateAndGetClosedDeals({sID_User}) {
+            const user = await User.findById(sID_User);
+
+            const closedDeals = await Deal.find(
+                {
+                    dealStatus: 'closed',
+                    userID: sID_User,
+                    bDemoAccount: user.bDemoAccount
+                }
+            );
+
+            const activeDeals = await Deal.find(
+                {
+                    dealStatus: 'active',
+                    userID: sID_User,
+                    bDemoAccount: user.bDemoAccount
+                }
+            );
+            console.log(new Date() + ':' + '[updateDeals]: activeTradesListChanged')
+            socket.emit('activeTradesListChanged', activeDeals)
+
+            console.log(new Date() + ':' + '[updateClosedDeals]: closedTradesListChanged')
+            socket.emit('closedTradesListChanged', closedDeals)
+
+            socket.emit('closeDeal_Success', {success: true})
+        }
+
+        async function updateAndGetUser(sID_User, sKey_Param, sValue) {
+            console.log('[updateAndGetUser], sID_User:', sID_User, 'sKey_Param:', sKey_Param)
+            let user_Return;
+            if (sKey_Param === 'balance') {
+                user_Return = await User.findOneAndUpdate(
+                    {_id: sID_User},
+                    {$set: {sBalance: sValue}},
+                    {new: true}
+                )
+            } else if (sKey_Param === 'getUser') {
+                user_Return = await User.findById(sID_User);
+            } else if (sKey_Param === 'balanceDemo') {
+                user_Return = await User.findOneAndUpdate(
+                    {_id: sID_User},
+                    {$set: {sBalance_Demo: sValue}},
+                    {new: true}
+                )
+            }
+
+            socket.emit('userUpdated', user_Return)
+        }
+
+        async function closeDeal(data) {
+            try {
+                const tradeID = data.tradeID;
+
+                const deal = await Deal.findOne({tradeID: tradeID})
+
+                const dealAmount = (deal.amount * deal.leverage);
+                const sDealResultPNL = await getsDealResultPNL(deal.symbol, deal.price, dealAmount, deal.tradeType)
+
+                await Deal.updateOne(
+                    {tradeID: tradeID},
+                    {dealStatus: 'closed', sDealResultPNL: sDealResultPNL},
+                    {new: true}
+                )
+
+                if (!deal) {
+                    console.log(new Date() + ':' + '[closeDeal]:Deal not found')
+                    socket.emit('closeDeal_Failed', {success: false, message: 'Deal not found'})
+                }
+
+                //Успешное закрытие сделки
+                console.log(new Date() + ':' + '[closeDeal]:Success,' + data.tradeID)
+                //Обновляем пользователя
+                const user = await User.findById(deal.userID);
+                if (user.bDemoAccount) {
+                    const sUpdatedBalance = Number(String(Number(user.sBalance_Demo)
+                        + deal.amount
+                        + await getnDealResultSum(deal.symbol, deal.price, dealAmount, deal.tradeType))).toFixed(2)
+                    await updateAndGetUser(deal.userID, 'balanceDemo', sUpdatedBalance, true);
+                    await updateAndGetClosedDeals({sID_User: deal.userID})
+                } else {
+                    const sUpdatedBalance = Number(String(Number(user.sBalance)
+                        + deal.amount
+                        + await getnDealResultSum(deal.symbol, deal.price, dealAmount, deal.tradeType))).toFixed(2)
+                    await updateAndGetUser(deal.userID, 'balance', sUpdatedBalance, false);
+                    await updateAndGetClosedDeals({sID_User: deal.userID})
+                }
+            } catch (err) {
+                console.log(new Date() + ':' + '[closeDeal]:' + err.message)
+                socket.emit('closeDeal_Failed', {success: false, message: err.message})
+            }
+        }
+
         let ip = socket.request.headers['x-forwarded-for'] || socket.request.connection.remoteAddress;
         console.log(`Клиент подключен. IP: ${ip}, ID: ${socket.id}, время: ${new Date()}`);
 
@@ -322,8 +296,8 @@ function initSocketIO(server) {
                     const newDeal = new Deal(data);
                     await newDeal.save();
                     console.log(new Date() + ':' + '[updateDeals]: updateDeals_Success')
-                    io.emit('updateDeals_Success', newDeal)
-                    io.emit('addDeal_Success', {success: true})
+                    socket.emit('updateDeals_Success', newDeal)
+                    socket.emit('addDeal_Success', {success: true})
                     const user = await User.findById(newDeal.userID);
 
                     const activeDeals = await Deal.find(
@@ -334,7 +308,7 @@ function initSocketIO(server) {
                         }
                     );
                     console.log(new Date() + ':' + '[updateDeals]: activeTradesListChanged')
-                    io.emit('activeTradesListChanged', activeDeals)
+                    socket.emit('activeTradesListChanged', activeDeals)
 
                     //Обновляем пользователя
                     if (user.bDemoAccount) {
@@ -346,8 +320,8 @@ function initSocketIO(server) {
                     }
                 } catch (err) {
                     console.log(new Date() + ':' + '[updateDeals]:', err)
-                    io.emit('updateDeals_Failed', err)
-                    io.emit('addDeal_Failed', {success: false, message: err.message})
+                    socket.emit('updateDeals_Failed', err)
+                    socket.emit('addDeal_Failed', {success: false, message: err.message})
                 }
             } else if (data.sID_User) {
                 const user = await User.findById(data.sID_User);
@@ -360,7 +334,7 @@ function initSocketIO(server) {
                     }
                 );
                 console.log(new Date() + ':' + '[updateDeals]: activeTradesListChanged')
-                io.emit('activeTradesListChanged', activeDeals)
+                socket.emit('activeTradesListChanged', activeDeals)
             }
         })
         socket.on('closeDeal', closeDeal)
@@ -377,12 +351,12 @@ function initSocketIO(server) {
                 );
 
                 if (!user) {
-                    io.emit('replenish_Failed', {success: false, message: 'User not found'})
+                    socket.emit('replenish_Failed', {success: false, message: 'User not found'})
                 }
 
-                io.emit('replenish_Success', {success: true})
+                socket.emit('replenish_Success', {success: true})
             } catch (err) {
-                io.emit('replenish_Failed', {success: false, message: err.message})
+                socket.emit('replenish_Failed', {success: false, message: err.message})
             }
         })
         socket.on('onWithdraw', async ({sID_User, nAmountToWithdraw, sWallet}) => {
@@ -399,14 +373,14 @@ function initSocketIO(server) {
                 );
 
                 if (!user) {
-                    io.emit('withdraw_Failed', {success: false, message: 'User not found'})
+                    socket.emit('withdraw_Failed', {success: false, message: 'User not found'})
                 }
 
                 const sUpdatedBalance = Number(String(Number(user.sBalance) - nAmountToWithdraw)).toFixed(2)
                 await updateAndGetUser(user._id, 'balance', sUpdatedBalance);
-                io.emit('withdraw_Success', {success: true})
+                socket.emit('withdraw_Success', {success: true})
             } catch (err) {
-                io.emit('withdraw_Failed', {success: false, message: err.message})
+                socket.emit('withdraw_Failed', {success: false, message: err.message})
             }
         })
         socket.on('userUpdate', async ({sID_User, sKey_Param}) => {
@@ -435,6 +409,7 @@ function initSocketIO(server) {
         socket.on('disconnect', () => {
             let ip = socket.request.headers['x-forwarded-for'] || socket.request.connection.remoteAddress;
             console.log(`Клиент отключен. IP: ${ip}, ID: ${socket.id}, время: ${new Date()}`);
+            clearInterval(interval);
 
             // Закрываем WebSocket при отключении клиента
             if (connections.has(socket.id)) {
@@ -447,12 +422,13 @@ function initSocketIO(server) {
     return io;
 }
 
+function resetPriceChanges() {
+    priceChange = {};
+}
+
 function setPriceChange(symbol, newPriceChange) {
-    console.log('symbol', symbol)
-    console.log('newPriceChange', newPriceChange)
     priceChange[symbol] = parseFloat(newPriceChange);
-    console.log('priceChange', priceChange)
 }
 
 // Экспортируем функцию initSocketIO, которая будет вызвана в index.js с сервером в качестве аргумента
-module.exports = {initSocketIO, setPriceChange};
+module.exports = {initSocketIO, setPriceChange, resetPriceChanges};
