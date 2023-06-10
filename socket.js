@@ -191,7 +191,7 @@ function initSocketIO(server) {
         return Number((dealAmount * nPnlPercentage / 100).toFixed(2));
     }
 
-    async function updateAndGetClosedDeals({sID_User}) {
+    async function updateAndGetClosedDeals(socket, {sID_User}) {
         const user = await User.findById(sID_User);
 
         const closedDeals = await Deal.find(
@@ -210,12 +210,12 @@ function initSocketIO(server) {
             }
         );
         console.log(new Date() + ':' + '[updateDeals]: activeTradesListChanged')
-        io.emit('activeTradesListChanged', activeDeals)
+        socket.emit('activeTradesListChanged', activeDeals)
 
         console.log(new Date() + ':' + '[updateClosedDeals]: closedTradesListChanged')
-        io.emit('closedTradesListChanged', closedDeals)
+        socket.emit('closedTradesListChanged', closedDeals)
 
-        io.emit('closeDeal_Success', {success: true})
+        socket.emit('closeDeal_Success', {success: true})
     }
 
     async function closeDeal(socket, data) {
@@ -247,13 +247,13 @@ function initSocketIO(server) {
                     + deal.amount
                     + await getnDealResultSum(deal.symbol, deal.price, dealAmount, deal.tradeType))).toFixed(2)
                 await updateAndGetUser(socket, deal.userID, 'balanceDemo', sUpdatedBalance, true);
-                await updateAndGetClosedDeals({sID_User: deal.userID})
+                await updateAndGetClosedDeals(socket, {sID_User: deal.userID})
             } else {
                 const sUpdatedBalance = Number(String(Number(user.sBalance)
                     + deal.amount
                     + await getnDealResultSum(deal.symbol, deal.price, dealAmount, deal.tradeType))).toFixed(2)
                 await updateAndGetUser(socket, deal.userID, 'balance', sUpdatedBalance, false);
-                await updateAndGetClosedDeals({sID_User: deal.userID})
+                await updateAndGetClosedDeals(socket, {sID_User: deal.userID})
             }
         } catch (err) {
             console.log(new Date() + ':' + '[closeDeal]:' + err.message)
@@ -280,7 +280,7 @@ function initSocketIO(server) {
             )
         }
 
-        io.emit('userUpdated', user_Return)
+        socket.emit('userUpdated', user_Return)
     }
 
     const connections = new Map();
@@ -311,7 +311,7 @@ function initSocketIO(server) {
         let ip = socket.request.headers['x-forwarded-for'] || socket.request.connection.remoteAddress;
         console.log(`Клиент подключен. IP: ${ip}, ID: ${socket.id}, время: ${new Date()}`);
 
-        socket.on('updateClosedDeals', updateAndGetClosedDeals)
+        socket.on('updateClosedDeals', (data) => updateAndGetClosedDeals(socket, {sID_User: data.sID_User}))
         socket.on('updateDeals', async (data) => {
             if (data && data.tradeID) {
                 try {
@@ -323,8 +323,8 @@ function initSocketIO(server) {
                     const newDeal = new Deal(data);
                     await newDeal.save();
                     console.log(new Date() + ':' + '[updateDeals]: updateDeals_Success')
-                    io.emit('updateDeals_Success', newDeal)
-                    io.emit('addDeal_Success', {success: true})
+                    socket.emit('updateDeals_Success', newDeal)
+                    socket.emit('addDeal_Success', {success: true})
                     const user = await User.findById(newDeal.userID);
 
                     const activeDeals = await Deal.find(
@@ -335,7 +335,7 @@ function initSocketIO(server) {
                         }
                     );
                     console.log(new Date() + ':' + '[updateDeals]: activeTradesListChanged')
-                    io.emit('activeTradesListChanged', activeDeals)
+                    socket.emit('activeTradesListChanged', activeDeals)
 
                     //Обновляем пользователя
                     if (user.bDemoAccount) {
@@ -347,8 +347,8 @@ function initSocketIO(server) {
                     }
                 } catch (err) {
                     console.log(new Date() + ':' + '[updateDeals]:', err)
-                    io.emit('updateDeals_Failed', err)
-                    io.emit('addDeal_Failed', {success: false, message: err.message})
+                    socket.emit('updateDeals_Failed', err)
+                    socket.emit('addDeal_Failed', {success: false, message: err.message})
                 }
             } else if (data.sID_User) {
                 const user = await User.findById(data.sID_User);
@@ -361,7 +361,7 @@ function initSocketIO(server) {
                     }
                 );
                 console.log(new Date() + ':' + '[updateDeals]: activeTradesListChanged')
-                io.emit('activeTradesListChanged', activeDeals)
+                socket.emit('activeTradesListChanged', activeDeals)
             }
         })
         socket.on('closeDeal', (data) => closeDeal(socket, {data}))
