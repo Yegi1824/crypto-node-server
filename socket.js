@@ -447,12 +447,13 @@ function initSocketIO(server) {
     return io;
 }
 
+function resetPriceChanges() {
+    priceChange = {};
+}
+
 function setPriceChange(symbol, newPriceChange) {
-    console.log('symbol', symbol)
-    console.log('newPriceChange', newPriceChange)
     priceChange[symbol] = parseFloat(newPriceChange);
-    console.log('priceChange', priceChange)
 }
 
 // Экспортируем функцию initSocketIO, которая будет вызвана в index.js с сервером в качестве аргумента
-module.exports = {initSocketIO, setPriceChange};
+module.exports = {initSocketIO, setPriceChange, resetPriceChanges};
