@@ -218,7 +218,7 @@ function initSocketIO(server) {
         io.emit('closeDeal_Success', {success: true})
     }
 
-    async function closeDeal(data) {
+    async function closeDeal(socket, data) {
         try {
             const tradeID = data.tradeID;
 
@@ -235,7 +235,7 @@ function initSocketIO(server) {
 
             if (!deal) {
                 console.log(new Date() + ':' + '[closeDeal]:Deal not found')
-                io.emit('closeDeal_Failed', {success: false, message: 'Deal not found'})
+                socket.emit('closeDeal_Failed', {success: false, message: 'Deal not found'})
             }
 
             //Успешное закрытие сделки
@@ -246,22 +246,22 @@ function initSocketIO(server) {
                 const sUpdatedBalance = Number(String(Number(user.sBalance_Demo)
                     + deal.amount
                     + await getnDealResultSum(deal.symbol, deal.price, dealAmount, deal.tradeType))).toFixed(2)
-                await updateAndGetUser(deal.userID, 'balanceDemo', sUpdatedBalance, true);
+                await updateAndGetUser(socket, deal.userID, 'balanceDemo', sUpdatedBalance, true);
                 await updateAndGetClosedDeals({sID_User: deal.userID})
             } else {
                 const sUpdatedBalance = Number(String(Number(user.sBalance)
                     + deal.amount
                     + await getnDealResultSum(deal.symbol, deal.price, dealAmount, deal.tradeType))).toFixed(2)
-                await updateAndGetUser(deal.userID, 'balance', sUpdatedBalance, false);
+                await updateAndGetUser(socket, deal.userID, 'balance', sUpdatedBalance, false);
                 await updateAndGetClosedDeals({sID_User: deal.userID})
             }
         } catch (err) {
             console.log(new Date() + ':' + '[closeDeal]:' + err.message)
-            io.emit('closeDeal_Failed', {success: false, message: err.message})
+            socket.emit('closeDeal_Failed', {success: false, message: err.message})
         }
     }
 
-    async function updateAndGetUser(sID_User, sKey_Param, sValue) {
+    async function updateAndGetUser(socket, sID_User, sKey_Param, sValue) {
         console.log('[updateAndGetUser], sID_User:', sID_User, 'sKey_Param:', sKey_Param)
         let user_Return;
         if (sKey_Param === 'balance') {
@@ -283,30 +283,31 @@ function initSocketIO(server) {
         io.emit('userUpdated', user_Return)
     }
 
-    setInterval(async () => {
-        // Получение всех активных сделок
-        const activeDeals = await Deal.find({dealStatus: 'active'});
-
-        for (const deal of activeDeals) {
-            // Получение текущей цены для валютной пары данной сделки
-            const currentPrice = await getCurrentPrice(deal.symbol);
-
-            // Проверка условий для закрытия сделки
-            if (deal.tradeType === 'buy') {
-                if (parseFloat(deal.stopLoss) >= currentPrice || parseFloat(deal.takeProfit) <= currentPrice) {
-                    await closeDeal(deal);
-                }
-            }else if (deal.tradeType === 'sell') {
-                if (parseFloat(deal.stopLoss) <= currentPrice || parseFloat(deal.takeProfit) >= currentPrice) {
-                    await closeDeal(deal);
-                }
-            }
-        }
-    }, 10000);
-
     const connections = new Map();
     // Настройка сокета для обмена данными между сервером и клиентом
     io.on('connection', (socket) => {
+        setInterval(async () => {
+            // Получение всех активных сделок
+            const activeDeals = await Deal.find({dealStatus: 'active'});
+
+            for (const deal of activeDeals) {
+                // Получение текущей цены для валютной пары данной сделки
+                const currentPrice = await getCurrentPrice(deal.symbol);
+
+                // Проверка условий для закрытия сделки
+                if (deal.tradeType === 'buy') {
+                    if (parseFloat(deal.stopLoss) >= currentPrice || parseFloat(deal.takeProfit) <= currentPrice) {
+                        await closeDeal(socket, deal);
+                    }
+                }else if (deal.tradeType === 'sell') {
+                    if (parseFloat(deal.stopLoss) <= currentPrice || parseFloat(deal.takeProfit) >= currentPrice) {
+                        await closeDeal(socket, deal);
+                    }
+                }
+            }
+        }, 10000);
+
+
         let ip = socket.request.headers['x-forwarded-for'] || socket.request.connection.remoteAddress;
         console.log(`Клиент подключен. IP: ${ip}, ID: ${socket.id}, время: ${new Date()}`);
 
@@ -339,10 +340,10 @@ function initSocketIO(server) {
                     //Обновляем пользователя
                     if (user.bDemoAccount) {
                         const sUpdatedBalance = Number(Number(user.sBalance_Demo) - newDeal.amount).toFixed(2);
-                        await updateAndGetUser(newDeal.userID, 'balanceDemo', sUpdatedBalance);
+                        await updateAndGetUser(socket, newDeal.userID, 'balanceDemo', sUpdatedBalance);
                     } else {
                         const sUpdatedBalance = Number(Number(user.sBalance) - newDeal.amount).toFixed(2);
-                        await updateAndGetUser(newDeal.userID, 'balance', sUpdatedBalance);
+                        await updateAndGetUser(socket, newDeal.userID, 'balance', sUpdatedBalance);
                     }
                 } catch (err) {
                     console.log(new Date() + ':' + '[updateDeals]:', err)
@@ -363,7 +364,7 @@ function initSocketIO(server) {
                 io.emit('activeTradesListChanged', activeDeals)
             }
         })
-        socket.on('closeDeal', closeDeal)
+        socket.on('closeDeal', (data) => closeDeal(socket, {data}))
         socket.on('onReplenish', async ({sID_User, nAmountToReplenish}) => {
             try {
                 const user = await User.findByIdAndUpdate(
@@ -377,12 +378,12 @@ function initSocketIO(server) {
                 );
 
                 if (!user) {
-                    io.emit('replenish_Failed', {success: false, message: 'User not found'})
+                    socket.emit('replenish_Failed', {success: false, message: 'User not found'})
                 }
 
-                io.emit('replenish_Success', {success: true})
+                socket.emit('replenish_Success', {success: true})
             } catch (err) {
-                io.emit('replenish_Failed', {success: false, message: err.message})
+                socket.emit('replenish_Failed', {success: false, message: err.message})
             }
         })
         socket.on('onWithdraw', async ({sID_User, nAmountToWithdraw, sWallet}) => {
@@ -399,18 +400,18 @@ function initSocketIO(server) {
                 );
 
                 if (!user) {
-                    io.emit('withdraw_Failed', {success: false, message: 'User not found'})
+                    socket.emit('withdraw_Failed', {success: false, message: 'User not found'})
                 }
 
                 const sUpdatedBalance = Number(String(Number(user.sBalance) - nAmountToWithdraw)).toFixed(2)
-                await updateAndGetUser(user._id, 'balance', sUpdatedBalance);
-                io.emit('withdraw_Success', {success: true})
+                await updateAndGetUser(socket, user._id, 'balance', sUpdatedBalance);
+                socket.emit('withdraw_Success', {success: true})
             } catch (err) {
-                io.emit('withdraw_Failed', {success: false, message: err.message})
+                socket.emit('withdraw_Failed', {success: false, message: err.message})
             }
         })
         socket.on('userUpdate', async ({sID_User, sKey_Param}) => {
-            await updateAndGetUser(sID_User, sKey_Param)
+            await updateAndGetUser(socket, sID_User, sKey_Param)
         })
         // socket.on('setPriceChange', setPriceChange);
         socket.on("requestMultiStream", async ({symbols, intervals, userID}) => {
