@@ -219,6 +219,7 @@ function initSocketIO(server) {
     }
 
     async function closeDeal(socket, data) {
+        console.log('data', data)
         try {
             const tradeID = data.tradeID;
 
@@ -364,7 +365,7 @@ function initSocketIO(server) {
                 socket.emit('activeTradesListChanged', activeDeals)
             }
         })
-        socket.on('closeDeal', (data) => closeDeal(socket, {data}))
+        socket.on('closeDeal', (data) => closeDeal(socket, data))
         socket.on('onReplenish', async ({sID_User, nAmountToReplenish}) => {
             try {
                 const user = await User.findByIdAndUpdate(
