@@ -357,7 +357,10 @@ function initSocketIO(server) {
 
             let socket = null;
             const userID = deal.userID.toString();
+            console.log('userID', userID)
             const socketID = userSocketMap.get(userID);
+            console.log('socketID', socketID)
+            console.log('io.sockets', io.sockets)
 
             if (socketID) {
                 socket = io.sockets.sockets[socketID];
