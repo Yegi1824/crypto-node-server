@@ -302,6 +302,9 @@ function initSocketIO(server) {
     async function updateAndGetUser(socket, sID_User, sKey_Param, sValue) {
         console.log('[updateAndGetUser], sID_User:', sID_User, 'sKey_Param:', sKey_Param)
         let user_Return;
+        if (sValue && sValue.indexOf('-')) {
+            sValue = '0';
+        }
         if (sKey_Param === 'balance') {
             user_Return = await User.findOneAndUpdate(
                 {_id: sID_User},
@@ -349,11 +352,9 @@ function initSocketIO(server) {
             const userID = deal.userID.toString();
             console.log('userID', userID);
             const socketID = userSocketMap.get(userID);
-            console.log('socketID', socketID)
 
             if (socketID) {
                 socket = io.sockets.sockets[socketID];
-                console.log('socket', socket)
             }
             // Проверка условий для закрытия сделки
             if (deal.tradeType === 'buy') {
@@ -377,11 +378,9 @@ function initSocketIO(server) {
             // Проверка условий для ликвидации сделки
             const userMarginLevel = await calculateUserMarginLevel(userID, deal); // Здесь вы должны реализовать функцию, которая вычисляет уровень маржи пользователя
             if (userMarginLevel === 0) {
-                console.log(111111)
                 if (socket) {
                     await closeDeal(socket, deal);
                 } else {
-                    console.log(22222)
                     await closeDealWhileUserOffline(deal)
                 }
             }
