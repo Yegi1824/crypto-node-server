@@ -232,13 +232,14 @@ function initSocketIO(server) {
             )
 
             if (!deal) {
-                console.log(new Date() + ':' + '[closeDeal]:Deal not found')
+                console.log(new Date() + ':' + '[closeDeal_ByServer]:Deal not found')
             }
 
             //Успешное закрытие сделки
             console.log(new Date() + ':' + '[closeDeal_ByServer]:Success,' + data.tradeID)
             //Обновляем пользователя
             const user = await User.findById(deal.userID);
+            console.log(111, 'deal', deal)
             if (deal.bDemoAccount) {
                 const sUpdatedBalance = Number(String(Number(user.sBalance_Demo)
                     + deal.amount
@@ -251,7 +252,7 @@ function initSocketIO(server) {
                 await updateAndGetUser(null, deal.userID, 'balance', sUpdatedBalance, false);
             }
         } catch (err) {
-            console.log(new Date() + ':' + '[closeDeal]:' + err.message)
+            console.log(new Date() + ':' + '[closeDeal_ByServer]:' + err.message)
         }
     }
 
