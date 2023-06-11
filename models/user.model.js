@@ -18,7 +18,8 @@ const userSchema = new Schema({
   sWithdrawWallet: {type: String, default: ''},
   sProfilePhoto: {type: String, default: ''},
   bDemoAccount: {type: Boolean, default: false},
-  sBalance_Demo: {type: String, default: '10000'}
+  sBalance_Demo: {type: String, default: '10000'},
+  sLastSocketID: {type: String, default: ''}
 });
 
 // Compare password method
