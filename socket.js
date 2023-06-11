@@ -360,10 +360,9 @@ function initSocketIO(server) {
             console.log('userID', userID)
             const socketID = userSocketMap.get(userID);
             console.log('socketID', socketID)
-            console.log('io.sockets', io.sockets)
 
             if (socketID) {
-                socket = io.sockets.sockets[socketID];
+                socket = io.sockets.sockets.get(socketID);
             }
             // Проверка условий для закрытия сделки
             if (deal.tradeType === 'buy') {
