@@ -287,7 +287,7 @@ function initSocketIO(server) {
     const connections = new Map();
     // Настройка сокета для обмена данными между сервером и клиентом
     io.on('connection', (socket) => {
-        setInterval(async () => {
+        /*setInterval(async () => {
             // Получение всех активных сделок
             const activeDeals = await Deal.find({dealStatus: 'active'});
 
@@ -306,7 +306,7 @@ function initSocketIO(server) {
                     }
                 }
             }
-        }, 10000);
+        }, 10000);*/
 
 
         let ip = socket.request.headers['x-forwarded-for'] || socket.request.connection.remoteAddress;
