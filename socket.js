@@ -393,6 +393,7 @@ function initSocketIO(server) {
     // Настройка сокета для обмена данными между сервером и клиентом
     io.on('connection', (socket) => {
         const userID = socket.handshake.query.userID;
+        console.log('[connection] userID', userID)
         userSocketMap.set(userID, socket.id);
         let ip = socket.request.headers['x-forwarded-for'] || socket.request.connection.remoteAddress;
         console.log(`Клиент подключен. IP: ${ip}, ID: ${socket.id}, время: ${new Date()}`);
