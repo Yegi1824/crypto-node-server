@@ -301,7 +301,7 @@ function initSocketIO(server) {
     }
 
     async function updateAndGetUser(socket, sID_User, sKey_Param, sValue) {
-        console.log('[updateAndGetUser], sID_User:', sID_User, 'sKey_Param:', sKey_Param)
+        console.log('[updateAndGetUser], sID_User:', sID_User, 'sKey_Param:', sKey_Param, 'sValue', sValue)
         let user_Return;
         if (sValue && sValue.indexOf('-')) {
             sValue = '0';
