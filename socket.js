@@ -336,7 +336,7 @@ function initSocketIO(server) {
             return 0;
         }
 
-        return compareBalance + dealPnL;
+        return compareBalance;
     }
 
 
@@ -350,7 +350,6 @@ function initSocketIO(server) {
 
             let socket = null;
             const userID = deal.userID.toString();
-            console.log('userID', userID);
             const socketID = userSocketMap.get(userID);
 
             if (socketID) {
@@ -378,6 +377,7 @@ function initSocketIO(server) {
             // Проверка условий для ликвидации сделки
             const userMarginLevel = await calculateUserMarginLevel(userID, deal); // Здесь вы должны реализовать функцию, которая вычисляет уровень маржи пользователя
             if (userMarginLevel === 0) {
+                console.log('LIQUIDATE, userMarginLevel', userMarginLevel)
                 if (socket) {
                     await closeDeal(socket, deal);
                 } else {
@@ -391,8 +391,6 @@ function initSocketIO(server) {
     // Настройка сокета для обмена данными между сервером и клиентом
     io.on('connection', (socket) => {
         const userID = socket.handshake.query.userID;
-        console.log('[connection] userID', userID)
-        console.log('[connection] socket.id', socket.id)
         userSocketMap.set(userID, socket.id);
         let ip = socket.request.headers['x-forwarded-for'] || socket.request.connection.remoteAddress;
         console.log(`Клиент подключен. IP: ${ip}, ID: ${socket.id}, время: ${new Date()}`);
