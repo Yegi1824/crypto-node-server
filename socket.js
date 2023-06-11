@@ -348,7 +348,7 @@ function initSocketIO(server) {
             let socket = null;
             const userID = deal.userID.toString();
             console.log('userID', userID);
-            const socketID = await userSocketMap.get(userID);
+            const socketID = userSocketMap.get(userID);
             console.log('socketID', socketID)
 
 
@@ -394,6 +394,7 @@ function initSocketIO(server) {
     io.on('connection', (socket) => {
         const userID = socket.handshake.query.userID;
         console.log('[connection] userID', userID)
+        console.log('[connection] socket.id', socket.id)
         userSocketMap.set(userID, socket.id);
         let ip = socket.request.headers['x-forwarded-for'] || socket.request.connection.remoteAddress;
         console.log(`Клиент подключен. IP: ${ip}, ID: ${socket.id}, время: ${new Date()}`);
