@@ -328,12 +328,12 @@ function initSocketIO(server) {
 
         const dealAmount = (deal.amount * deal.leverage);
         const dealPnL = await getnDealResultSum(deal.symbol, deal.price, dealAmount, deal.tradeType);
-
-        if (-dealPnL >= user.sBalance) {
+        const compareBalance = deal.bDemoAccount ? user.sBalance_Demo : user.sBalance
+        if (-dealPnL >= compareBalance) {
             return 0;
         }
 
-        return user.sBalance + dealPnL;
+        return compareBalance + dealPnL;
     }
 
 
@@ -350,7 +350,6 @@ function initSocketIO(server) {
             console.log('userID', userID);
             const socketID = userSocketMap.get(userID);
             console.log('socketID', socketID)
-
 
             if (socketID) {
                 socket = io.sockets.sockets[socketID];
