@@ -346,8 +346,8 @@ function initSocketIO(server) {
             const currentPrice = await getCurrentPrice(deal.symbol);
 
             let socket = null;
-            const userID = deal.userID; // ID пользователя, который владеет сделкой
-            console.log('userID', userID)
+            const userID = deal.userID.toString();
+            console.log('userID', userID);
             const socketID = await userSocketMap.get(userID);
             console.log('socketID', socketID)
 
