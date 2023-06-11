@@ -280,6 +280,7 @@ function initSocketIO(server) {
             console.log(new Date() + ':' + '[closeDeal]:Success,' + data.tradeID)
             //Обновляем пользователя
             const user = await User.findById(deal.userID);
+            console.log('[closeDeal], deal', deal)
             if (deal.bDemoAccount) {
                 const sUpdatedBalance = Number(String(Number(user.sBalance_Demo)
                     + deal.amount
