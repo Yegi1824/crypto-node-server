@@ -337,7 +337,7 @@ function initSocketIO(server) {
         if (dealPnL < 0) {
             console.log('[calculateUserMarginLevel], compareBalance: ', compareBalance)
             console.log('-dealPnL', -dealPnL)
-            if (Math.abs(dealPnL) >= compareBalance) {
+            if (Math.abs(dealPnL) >= (compareBalance + deal.amount)) {
                 return 0;
             }
         }
