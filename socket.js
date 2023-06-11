@@ -303,7 +303,7 @@ function initSocketIO(server) {
     async function updateAndGetUser(socket, sID_User, sKey_Param, sValue) {
         console.log('[updateAndGetUser], sID_User:', sID_User, 'sKey_Param:', sKey_Param, 'sValue', sValue)
         let user_Return;
-        if (sValue && sValue.indexOf('-')) {
+        if (sValue && sValue.indexOf('-') !== -1) {
             sValue = '0';
         }
         if (sKey_Param === 'balance') {
