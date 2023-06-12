@@ -395,7 +395,9 @@ function initSocketIO(server) {
         socket.on('updateDeals', async (data) => {
             if (data && data.tradeID) {
                 try {
-                    data.price = await getCurrentPrice(data.symbol)
+                    await getCurrentPrice(data.symbol).then((oData) => {
+                        data.price = oData.lastPrice;
+                    })
 
                     const dealAmount = (data.amount * data.leverage);
                     data.sDealResultPNL = await getsDealResultPNL(data.symbol, data.price, dealAmount, data.tradeType);
