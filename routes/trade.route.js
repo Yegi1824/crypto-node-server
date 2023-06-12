@@ -60,7 +60,7 @@ router.put('/deals/closeDeal/:tradeID', async (req, res) => {
 router.get('/getAllSymbols', async (req, res) => {
   try {
     let aoSymbols = await getSymbolsWithVolume();
-    let filteredResponse_Return = aoSymbols.filter(symbol => symbol.quoteVolume > 500000) // VOLUME_THRESHOLD - это порог объема, который вы установите
+    let filteredResponse_Return = aoSymbols.filter(symbol => symbol.quoteVolume > 1500000) // VOLUME_THRESHOLD - это порог объема, который вы установите
         .map(symbol => symbol.symbol);
 
     res.json({symbols: filteredResponse_Return});
