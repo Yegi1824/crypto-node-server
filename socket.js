@@ -173,7 +173,9 @@ function initSocketIO(server) {
     async function getCurrentPrice(symbol) {
         const historicalData = await fetchBinanceData(symbol, '15m');
         const manipulatedData = await manipulateData(historicalData, symbol, (priceChange[symbol] || 0));
-        return manipulatedData[manipulatedData.length - 1][4];
+        return manipulatedData[manipulatedData.length - 1][4] !== 0
+            ? manipulatedData[manipulatedData.length - 1][4]
+            : manipulatedData[manipulatedData.length - 1][3];
     }
 
     async function getnDealResultSum(symbol, openPrice, dealAmount, dealType) {
