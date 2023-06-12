@@ -77,10 +77,10 @@ async function getSymbolsWithVolume() {
   }));
 }
 
-async function getSymbols() {
+/*async function getSymbols() {
   const response = await axios.get('https://api.binance.com/api/v3/exchangeInfo');
 
   return response.data;
-}
+}*/
 
 module.exports = router;

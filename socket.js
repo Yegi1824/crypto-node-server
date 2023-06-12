@@ -77,7 +77,7 @@ function initSocketIO(server) {
     }
 
     async function fetchBinanceData(symbol, interval) {
-        const response = await axios.get(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}`);
+        const response = await axios.get(`https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol}`);
         return response.data;
     }
 
@@ -139,39 +139,29 @@ function initSocketIO(server) {
             const lowPrice = parseFloat(updatedKlineData.l);
             const newLowPrice = lowPrice * (1 + initialPriceChange);
             updatedKlineData.l = (newLowPrice < newClosePrice) ? newLowPrice.toFixed(2) : newClosePrice.toFixed(2);
-        } else if (klineData && klineData.length) {
+        } else if (klineData && klineData.lastPrice) {
             // Закрывающая цена
-            const closePrice = parseFloat(klineData[4]);
+            const closePrice = parseFloat(klineData.lastPrice);
             const newClosePrice = closePrice * (1 + initialPriceChange);
-            updatedKlineData[4] = newClosePrice.toFixed(2);
-
-            // Цена высокая
-            const highPrice = parseFloat(klineData[2]);
-            const newHighPrice = highPrice * (1 + initialPriceChange);
-            updatedKlineData[2] = (newHighPrice > newClosePrice) ? newHighPrice.toFixed(2) : newClosePrice.toFixed(2);
-
-            // Цена низкая
-            const lowPrice = parseFloat(klineData[3]);
-            const newLowPrice = lowPrice * (1 + initialPriceChange);
-            updatedKlineData[3] = (newLowPrice < newClosePrice) ? newLowPrice.toFixed(2) : newClosePrice.toFixed(2);
+            updatedKlineData.lastPrice = newClosePrice.toFixed(2);
         }
 
         return updatedKlineData;
     }
 
     async function manipulateData(data, symbol, initialPriceChange) {
-        const lastCandle = data[data.length - 1];
-        data[data.length - 1] = await manipulateKlineData(lastCandle, symbol, initialPriceChange);
+        // const lastCandle = data[data.length - 1];
+        data = await manipulateKlineData(data, symbol, initialPriceChange);
         return data;
     }
 
     async function getCurrentPrice(symbol) {
-        const historicalData = await fetchBinanceData(symbol, '15m');
-        const manipulatedData = await manipulateData(historicalData, symbol, (priceChange[symbol] || 0));
-        console.log('[getCurrentPrice], symbol:', symbol, 'manipulatedData[manipulatedData.length - 1]', manipulatedData[manipulatedData.length - 1])
-        return manipulatedData[manipulatedData.length - 1][4] !== 0
-            ? manipulatedData[manipulatedData.length - 1][4]
-            : manipulatedData[manipulatedData.length - 1][3];
+        const oHistoricalData = await fetchBinanceData(symbol);
+        return await manipulateData(oHistoricalData, symbol, (priceChange[symbol] || 0));
+        // console.log('[getCurrentPrice], symbol:', symbol, 'manipulatedData[manipulatedData.length - 1]', manipulatedData[manipulatedData.length - 1])
+        // return manipulatedData[manipulatedData.length - 1][4] !== 0
+        //     ? manipulatedData[manipulatedData.length - 1][4]
+        //     : manipulatedData[manipulatedData.length - 1][3];
     }
 
     async function getnDealResultSum(symbol, openPrice, dealAmount, dealType) {
