@@ -337,7 +337,9 @@ function initSocketIO(server) {
         const dealAmount = (deal.amount * deal.leverage);
         const dealPnL = await getnDealResultSum(deal.symbol, deal.price, dealAmount, deal.tradeType);
         let compareBalance = deal.bDemoAccount ? user.sBalance_Demo : user.sBalance
+        console.log('[balance] compareBalance', compareBalance)
         compareBalance += deal.amount
+        console.log('[balance + deal.amount] compareBalance', compareBalance)
         if (dealPnL < 0) {
             console.log('[calculateUserMarginLevel], dealPnL: ', dealPnL)
             console.log('[calculateUserMarginLevel], compareBalance: ', compareBalance)
