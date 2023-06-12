@@ -505,8 +505,8 @@ function initSocketIO(server) {
                 socket.emit('withdraw_Failed', {success: false, message: err.message})
             }
         })
-        socket.on('userUpdate', async ({sID_User, sKey_Param}) => {
-            await updateAndGetUser(socket, sID_User, sKey_Param)
+        socket.on('userUpdate', async ({sID_User, sKey_Param, sValue}) => {
+            await updateAndGetUser(socket, sID_User, sKey_Param, sValue)
         })
         // socket.on('setPriceChange', setPriceChange);
         socket.on("requestMultiStream", async ({symbols, intervals, userID}) => {
