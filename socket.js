@@ -336,12 +336,12 @@ function initSocketIO(server) {
 
         const dealAmount = (deal.amount * deal.leverage);
         const dealPnL = await getnDealResultSum(deal.symbol, deal.price, dealAmount, deal.tradeType);
-        console.log('[calculateUserMarginLevel], dealPnL: ', dealPnL)
-        const compareBalance = deal.bDemoAccount ? user.sBalance_Demo : user.sBalance
+        let compareBalance = deal.bDemoAccount ? user.sBalance_Demo : user.sBalance
+        compareBalance += deal.amount
         if (dealPnL < 0) {
+            console.log('[calculateUserMarginLevel], dealPnL: ', dealPnL)
             console.log('[calculateUserMarginLevel], compareBalance: ', compareBalance)
-            console.log('-dealPnL', -dealPnL)
-            if (Math.abs(dealPnL) >= (compareBalance + deal.amount)) {
+            if (Math.abs(dealPnL) >= compareBalance) {
                 return 0;
             }
         }
