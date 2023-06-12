@@ -239,10 +239,6 @@ function initSocketIO(server) {
             console.log(new Date() + ':' + '[closeDeal_ByServer]:Success,' + data.tradeID)
             //Обновляем пользователя
             const user = await User.findById(deal.userID);
-            console.log(111, 'deal', deal)
-            console.log('await getnDealResultSum(deal.symbol, deal.price, dealAmount, deal.tradeType)', await getnDealResultSum(deal.symbol, deal.price, dealAmount, deal.tradeType))
-            console.log('deal.amount', deal.amount)
-            console.log('Number(user.sBalance_Demo)', Number(user.sBalance_Demo))
             if (deal.bDemoAccount) {
                 const sUpdatedBalance = Number(Number(user.sBalance_Demo)
                     + deal.amount
@@ -250,9 +246,9 @@ function initSocketIO(server) {
                 console.log('sUpdatedBalance', sUpdatedBalance)
                 await updateAndGetUser(null, deal.userID, 'balanceDemo', sUpdatedBalance);
             } else {
-                const sUpdatedBalance = Number(String(Number(user.sBalance)
+                const sUpdatedBalance = Number(Number(user.sBalance)
                     + deal.amount
-                    + await getnDealResultSum(deal.symbol, deal.price, dealAmount, deal.tradeType))).toFixed(2)
+                    + await getnDealResultSum(deal.symbol, deal.price, dealAmount, deal.tradeType)).toFixed(2)
                 await updateAndGetUser(null, deal.userID, 'balance', sUpdatedBalance);
             }
         } catch (err) {
@@ -286,15 +282,19 @@ function initSocketIO(server) {
             const user = await User.findById(deal.userID);
             console.log('[closeDeal], deal', deal)
             if (deal.bDemoAccount) {
-                const sUpdatedBalance = Number(String(Number(user.sBalance_Demo)
+                console.log(111, 'deal', deal)
+                console.log('await getnDealResultSum(deal.symbol, deal.price, dealAmount, deal.tradeType)', await getnDealResultSum(deal.symbol, deal.price, dealAmount, deal.tradeType))
+                console.log('deal.amount', deal.amount)
+                console.log('Number(user.sBalance_Demo)', Number(user.sBalance_Demo))
+                const sUpdatedBalance = Number(Number(user.sBalance_Demo)
                     + deal.amount
-                    + await getnDealResultSum(deal.symbol, deal.price, dealAmount, deal.tradeType))).toFixed(2)
+                    + await getnDealResultSum(deal.symbol, deal.price, dealAmount, deal.tradeType)).toFixed(2)
                 await updateAndGetUser(socket, deal.userID, 'balanceDemo', sUpdatedBalance);
                 await updateAndGetClosedDeals(socket, {sID_User: deal.userID})
             } else {
-                const sUpdatedBalance = Number(String(Number(user.sBalance)
+                const sUpdatedBalance = Number(Number(user.sBalance)
                     + deal.amount
-                    + await getnDealResultSum(deal.symbol, deal.price, dealAmount, deal.tradeType))).toFixed(2)
+                    + await getnDealResultSum(deal.symbol, deal.price, dealAmount, deal.tradeType)).toFixed(2)
                 await updateAndGetUser(socket, deal.userID, 'balance', sUpdatedBalance);
                 await updateAndGetClosedDeals(socket, {sID_User: deal.userID})
             }
