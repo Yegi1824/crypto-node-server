@@ -156,11 +156,8 @@ function initSocketIO(server) {
 
     async function getCurrentPrice(symbol) {
         const oHistoricalData = await fetchBinanceData(symbol);
-        return await manipulateData(oHistoricalData, symbol, (priceChange[symbol] || 0));
-        // console.log('[getCurrentPrice], symbol:', symbol, 'manipulatedData[manipulatedData.length - 1]', manipulatedData[manipulatedData.length - 1])
-        // return manipulatedData[manipulatedData.length - 1][4] !== 0
-        //     ? manipulatedData[manipulatedData.length - 1][4]
-        //     : manipulatedData[manipulatedData.length - 1][3];
+        const oManipulatedData = await manipulateData(oHistoricalData, symbol, (priceChange[symbol] || 0))
+        return oManipulatedData.lastPrice;
     }
 
     async function getnDealResultSum(symbol, openPrice, dealAmount, dealType) {
@@ -395,9 +392,7 @@ function initSocketIO(server) {
         socket.on('updateDeals', async (data) => {
             if (data && data.tradeID) {
                 try {
-                    await getCurrentPrice(data.symbol).then((oData) => {
-                        data.price = oData.lastPrice;
-                    })
+                    data.price = await getCurrentPrice(data.symbol)
 
                     const dealAmount = (data.amount * data.leverage);
                     data.sDealResultPNL = await getsDealResultPNL(data.symbol, data.price, dealAmount, data.tradeType);
