@@ -77,12 +77,7 @@ function initSocketIO(server) {
     }
 
     async function fetchBinanceData(symbol, interval) {
-        const response = await axios.get('https://api.binance.com/api/v3/klines', {
-            params: {
-                symbol,
-                interval,
-            },
-        });
+        const response = await axios.get(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}`);
         return response.data;
     }
 
