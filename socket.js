@@ -240,16 +240,20 @@ function initSocketIO(server) {
             //Обновляем пользователя
             const user = await User.findById(deal.userID);
             console.log(111, 'deal', deal)
+            console.log('await getnDealResultSum(deal.symbol, deal.price, dealAmount, deal.tradeType)', await getnDealResultSum(deal.symbol, deal.price, dealAmount, deal.tradeType))
+            console.log('deal.amount', deal.amount)
+            console.log('Number(user.sBalance_Demo)', Number(user.sBalance_Demo))
             if (deal.bDemoAccount) {
-                const sUpdatedBalance = Number(String(Number(user.sBalance_Demo)
+                const sUpdatedBalance = Number(Number(user.sBalance_Demo)
                     + deal.amount
-                    + await getnDealResultSum(deal.symbol, deal.price, dealAmount, deal.tradeType))).toFixed(2)
-                await updateAndGetUser(null, deal.userID, 'balanceDemo', sUpdatedBalance, true);
+                    + await getnDealResultSum(deal.symbol, deal.price, dealAmount, deal.tradeType)).toFixed(2)
+                console.log('sUpdatedBalance', sUpdatedBalance)
+                await updateAndGetUser(null, deal.userID, 'balanceDemo', sUpdatedBalance);
             } else {
                 const sUpdatedBalance = Number(String(Number(user.sBalance)
                     + deal.amount
                     + await getnDealResultSum(deal.symbol, deal.price, dealAmount, deal.tradeType))).toFixed(2)
-                await updateAndGetUser(null, deal.userID, 'balance', sUpdatedBalance, false);
+                await updateAndGetUser(null, deal.userID, 'balance', sUpdatedBalance);
             }
         } catch (err) {
             console.log(new Date() + ':' + '[closeDeal_ByServer]:' + err.message)
@@ -285,13 +289,13 @@ function initSocketIO(server) {
                 const sUpdatedBalance = Number(String(Number(user.sBalance_Demo)
                     + deal.amount
                     + await getnDealResultSum(deal.symbol, deal.price, dealAmount, deal.tradeType))).toFixed(2)
-                await updateAndGetUser(socket, deal.userID, 'balanceDemo', sUpdatedBalance, true);
+                await updateAndGetUser(socket, deal.userID, 'balanceDemo', sUpdatedBalance);
                 await updateAndGetClosedDeals(socket, {sID_User: deal.userID})
             } else {
                 const sUpdatedBalance = Number(String(Number(user.sBalance)
                     + deal.amount
                     + await getnDealResultSum(deal.symbol, deal.price, dealAmount, deal.tradeType))).toFixed(2)
-                await updateAndGetUser(socket, deal.userID, 'balance', sUpdatedBalance, false);
+                await updateAndGetUser(socket, deal.userID, 'balance', sUpdatedBalance);
                 await updateAndGetClosedDeals(socket, {sID_User: deal.userID})
             }
         } catch (err) {
