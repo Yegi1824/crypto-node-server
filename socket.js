@@ -142,8 +142,7 @@ function initSocketIO(server) {
         } else if (klineData && klineData.lastPrice) {
             // Закрывающая цена
             const closePrice = parseFloat(klineData.lastPrice);
-            const newClosePrice = closePrice * (1 + initialPriceChange);
-            updatedKlineData.lastPrice = newClosePrice.toFixed(2);
+            updatedKlineData.lastPrice = closePrice * (1 + initialPriceChange)
         }
 
         return updatedKlineData;
