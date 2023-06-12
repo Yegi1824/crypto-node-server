@@ -49,7 +49,7 @@ function initSocketIO(server) {
         socket.emit('realtimeData_MultiStream', klineData);
     }
 
-    function subscribeToMultiStream(symbols, intervals, socket, startTime, userID) {
+    function subscribeToMultiStream(symbols, intervals, socket, userID) {
         const streams = symbols.map(symbol => intervals.map(interval => `${symbol.toLowerCase()}@kline_${interval}`)).flat();
 
         const wsUrl = `wss://stream.binance.com:9443/stream?streams=${streams.join('/')}`;
@@ -497,15 +497,13 @@ function initSocketIO(server) {
                 // Только если WebSocket открыт, попытаться его завершить
                 if (prevWs.readyState === WebSocket.OPEN) {
                     prevWs.on('close', () => {
-                        const startTime = new Date().getTime();
-                        const realtimeWs = subscribeToMultiStream(symbols, intervals, socket, startTime, userID);
+                        const realtimeWs = subscribeToMultiStream(symbols, intervals, socket, userID);
                         connections.set(socket.id, realtimeWs);
                     });
                     prevWs.terminate();
                 }
             } else {
-                const startTime = new Date().getTime();
-                const realtimeWs = subscribeToMultiStream(symbols, intervals, socket, startTime, userID);
+                const realtimeWs = subscribeToMultiStream(symbols, intervals, socket, userID);
                 connections.set(socket.id, realtimeWs);
             }
         });

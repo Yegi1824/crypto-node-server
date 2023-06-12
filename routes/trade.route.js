@@ -60,7 +60,7 @@ router.put('/deals/closeDeal/:tradeID', async (req, res) => {
 router.get('/getAllSymbols', async (req, res) => {
   try {
     let aoSymbols = await getSymbolsWithVolume();
-    let filteredResponse_Return = aoSymbols.filter(symbol => symbol.volume > 50000) // VOLUME_THRESHOLD - это порог объема, который вы установите
+    let filteredResponse_Return = aoSymbols.filter(symbol => symbol.quoteVolume > 500000) // VOLUME_THRESHOLD - это порог объема, который вы установите
         .map(symbol => symbol.symbol);
 
     res.json({symbols: filteredResponse_Return});
@@ -73,7 +73,7 @@ async function getSymbolsWithVolume() {
   const response = await axios.get('https://api.binance.com/api/v3/ticker/24hr');
   return response.data.map(symbolInfo => ({
     symbol: symbolInfo.symbol,
-    volume: parseFloat(symbolInfo.volume),
+    quoteVolume: parseFloat(symbolInfo.quoteVolume),
   }));
 }
 
