@@ -6,7 +6,16 @@ const multer = require('multer');
 const Deal = require("../models/deal.model");
 const Admin = require("../models/admin.model");
 // const storage = multer.diskStorage()
-const upload = multer();
+// const upload = multer();
+const cloudinary = require('cloudinary').v2
+cloudinary.config({
+  cloud_name: 'dgapdz84b',
+  api_key: '777432719576594',
+  api_secret: 'aWl8z9OmB3AtM-49jNJm8iVo27Y'
+});
+// multer setup
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
 const formData = require('form-data');
 const Mailgun = require('mailgun.js');
@@ -249,42 +258,40 @@ router.put('/user/:id/demo', async (req, res) => {
 router.put('/user/:id/verification', upload.array('documents'), async (req, res) => {
   try {
     const {id} = req.params;
-    const oVerificationDocuments = req.files; // Здесь будут файлы
+    const oVerificationDocuments = req.files;
 
-    // Преобразуйте файлы в формат, который вы хотите сохранить
-    const processedFiles = oVerificationDocuments.map(file => {
-      return file.buffer.toString('base64');
-    });
+    // Массив для хранения ссылок на изображения
+    const imageLinks = [];
+
+    // Пройдитесь по всем файлам и загрузите их на Cloudinary
+    for (let file of oVerificationDocuments) {
+      const result = await cloudinary.uploader.upload_stream(
+          { resource_type: 'auto' },
+          async (error, result) => {
+            if (error) throw new Error(error);
+            // После загрузки, сохраните ссылку на изображение
+            imageLinks.push(result.url);
+          }
+      ).end(file.buffer);
+    }
 
     const user = await User.findByIdAndUpdate(
-      id,
-      {
-        $set: {
-          oVerificationDocuments: processedFiles,
-          bVerificationDocumentsSubmitted: true,
-          sVerificationConfirmed: 'pending'
-        }
-      },
-      {new: true} // Возвращает обновленный документ
+        id,
+        {
+          $set: {
+            oVerificationDocuments: imageLinks, // Сохраните ссылки вместо base64 изображений
+            bVerificationDocumentsSubmitted: true,
+            sVerificationConfirmed: 'pending'
+          }
+        },
+        {new: true}
     );
 
     if (!user) {
       return res.status(404).json({message: 'User not found'});
     }
 
-    res.status(200).json({
-      user: {
-        id: user._id,
-        sName: user.sName,
-        sSurname: user.sSurname,
-        sEmail: user.sEmail,
-        sNumber: user.sNumber,
-        sBalance: user.sBalance,
-        oVerificationDocuments: user.oVerificationDocuments,
-        bVerificationDocumentsSubmitted: user.bVerificationDocumentsSubmitted,
-        sVerificationConfirmed: user.sVerificationConfirmed
-      },
-    });
+    res.status(200).json(user);
   } catch (err) {
     res.status(500).json({message: err.message});
   }
