@@ -13,7 +13,7 @@ app.use(express.urlencoded({extended: false}));
 const mongoose = require('mongoose');
 
 // Connect to MongoDB
-const uri = 'mongodb+srv://yegizavr:yegizavr123@cluster0.rgzhbcz.mongodb.net/test?retryWrites=true&w=majority';
+const uri = 'mongodb+srv://futuresmark007:WFAnixfHdS0Sauxr@cluster0.7vvtk8q.mongodb.net/startcrypto?retryWrites=true&w=majority';
 mongoose.connect(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
