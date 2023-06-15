@@ -260,26 +260,30 @@ router.put('/user/:id/verification', upload.array('documents'), async (req, res)
     const {id} = req.params;
     const oVerificationDocuments = req.files;
 
-    // Массив для хранения ссылок на изображения
-    const imageLinks = [];
+    const imagePromises = oVerificationDocuments.map(file => {
+      return new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+            { resource_type: 'auto' },
+            (error, result) => {
+              if (error) {
+                reject(error);
+              } else {
+                resolve(result.url);
+              }
+            }
+        );
 
-    // Пройдитесь по всем файлам и загрузите их на Cloudinary
-    for (let file of oVerificationDocuments) {
-      const result = await cloudinary.uploader.upload_stream(
-          { resource_type: 'auto' },
-          async (error, result) => {
-            if (error) throw new Error(error);
-            // После загрузки, сохраните ссылку на изображение
-            imageLinks.push(result.url);
-          }
-      ).end(file.buffer);
-    }
+        uploadStream.end(file.buffer);
+      });
+    });
+
+    const imageLinks = await Promise.all(imagePromises);
 
     const user = await User.findByIdAndUpdate(
         id,
         {
           $set: {
-            oVerificationDocuments: imageLinks, // Сохраните ссылки вместо base64 изображений
+            oVerificationDocuments: imageLinks,
             bVerificationDocumentsSubmitted: true,
             sVerificationConfirmed: 'pending'
           }
