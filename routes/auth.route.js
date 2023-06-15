@@ -304,21 +304,35 @@ router.put('/user/:id/verification', upload.array('documents'), async (req, res)
 router.put('/user/:id/photo', upload.array('documents'), async (req, res) => {
   try {
     const {id} = req.params;
-    const oVerificationDocuments = req.files; // Здесь будут файлы
+    const userImage = req.files[0]; // Здесь будет файл
 
-    // Преобразуйте файлы в формат, который вы хотите сохранить
-    const processedFiles = oVerificationDocuments.map(file => {
-      return file.buffer.toString('base64');
-    });
+    let imageLink;
+    if (userImage) {
+      await new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+            { resource_type: 'auto' },
+            (error, result) => {
+              if (error) {
+                reject(error);
+              } else {
+                imageLink = result.url;
+                resolve(result.url);
+              }
+            }
+        );
+
+        uploadStream.end(userImage.buffer);
+      });
+    }
 
     const user = await User.findByIdAndUpdate(
-      id,
-      {
-        $set: {
-          sProfilePhoto: processedFiles[0]
-        }
-      },
-      {new: true}
+        id,
+        {
+          $set: {
+            sProfilePhoto: imageLink
+          }
+        },
+        {new: true}
     );
 
     if (!user) {
