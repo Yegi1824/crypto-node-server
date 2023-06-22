@@ -454,25 +454,25 @@ router.put('/actualReplenishWallets/:id', async (req, res) => {
 });
 
 // Получение активных сделок для пользователя
-/*router.get('/users/:userId/activeDeals', async (req, res) => {
+router.get('/users/:userId/activeDeals', async (req, res) => {
   try {
     const deals = await Deal.find({userID: req.params.userId, dealStatus: 'active'});
     res.status(200).json(deals);
   } catch (err) {
     res.status(500).json({message: err.message});
   }
-});*/
+});
 
 // Получение закрытых сделок для пользователя
-/*router.post('/users/:userId/closedDeals', async (req, res) => {
-  const {bDemoAccount} = req.body;
+router.get('/users/:userId/closedDeals', async (req, res) => {
+  // const {bDemoAccount} = req.body;
 
   try {
-    const deals = await Deal.find({userID: req.params.userId, dealStatus: 'closed', bDemoAccount: bDemoAccount});
+    const deals = await Deal.find({userID: req.params.userId, dealStatus: 'closed', bDemoAccount: false});
     res.status(200).json(deals);
   } catch (err) {
     res.status(500).json({message: err.message});
   }
-});*/
+});
 
 module.exports = router;
