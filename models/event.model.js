@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const eventSchema = new Schema({
-    userID: {type: String, required: true, unique: true},
+    userID: {type: String, required: true},
     sKey_Type: {type: String, required: true, enum: ['withdraw', 'replenish'] },
     bCompleted: {type: Boolean, required: true, default: false},
     sConfirmed: {type: String, default: ''},
