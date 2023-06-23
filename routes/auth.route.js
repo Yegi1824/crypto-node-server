@@ -396,7 +396,7 @@ router.get('/users/:id/events', async (req, res) => {
     }
 })
 
-router.get('eventConfirm/:id', async (req, res) => {
+router.get('/eventConfirm/:id', async (req, res) => {
     const {id} = req.params;
 
     try {
@@ -439,7 +439,7 @@ router.get('eventConfirm/:id', async (req, res) => {
     }
 })
 
-router.get('eventDeny/:id', async (req, res) => {
+router.get('/eventDeny/:id', async (req, res) => {
     const {id} = req.params;
 
     try {
