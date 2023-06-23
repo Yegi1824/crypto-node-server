@@ -19,6 +19,7 @@ const upload = multer({ storage: storage });
 
 const formData = require('form-data');
 const Mailgun = require('mailgun.js');
+const Events = require("../models/event.model");
 
 const mailgun = new Mailgun(formData);
 const mg = mailgun.client({
@@ -377,6 +378,69 @@ router.get('/actualReplenishWallets', async (req, res) => {
 
     res.status(200).json({wallets: wallets});
   } catch (err) {
+    res.status(500).json({message: err.message});
+  }
+})
+
+router.get('users/:id/events', async (req, res) => {
+  const {id} = req.query
+
+  try {
+    const events = await Events.find({
+      userID: id
+    })
+
+    res.status(200).json({events});
+  }catch (err) {
+    res.status(500).json({message: err.message});
+  }
+})
+
+router.get('eventConfirm/:_id', async (req, res) => {
+  const {_id} = req.query;
+
+  try {
+    const event = await Events.findByIdAndUpdate(
+        _id,
+        {
+          $set: {
+            sConfirmed: 'true',
+            bCompleted: true
+          }
+        },
+        {new: true}
+    )
+
+    if (!event) {
+      return res.status(404).json({message: 'Event not found'});
+    }
+
+    res.status(200).json({bReplenishConfirmed: true});
+  }catch (err) {
+    res.status(500).json({message: err.message});
+  }
+})
+
+router.get('eventDeny/:_id', async (req, res) => {
+  const {_id} = req.query;
+
+  try {
+    const event = await Events.findByIdAndUpdate(
+        _id,
+        {
+          $set: {
+            sConfirmed: 'false'
+          }
+        },
+        {new: true}
+    )
+
+    if (!event) {
+      return res.status(404).json({message: 'Event not found'});
+    }
+
+    res.status(200).json({bReplenishConfirmed: true});
+  }catch (err) {
     res.status(500).json({message: err.message});
   }
 })

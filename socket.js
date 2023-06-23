@@ -3,6 +3,7 @@ const WebSocket = require('ws');
 const socketIo = require('socket.io');
 const Deal = require("./models/deal.model");
 const User = require("./models/user.model");
+const Events = require("./models/event.model");
 const klineDataCache = new Map();
 let priceChange = {};
 const userSocketMap = new Map();
@@ -444,14 +445,25 @@ function initSocketIO(server) {
         socket.on('closeDeal', (data) => closeDeal(socket, data))
         socket.on('onReplenish', async ({sID_User, nAmountToReplenish}) => {
             try {
-                const user = await User.findByIdAndUpdate(
-                    sID_User,
+                const event = {
+                    userID: sID_User,
+                    sKey_Type: 'replenish',
+                    bCompleted: false,
+                    nSum: nAmountToReplenish,
+                    sDateTime: new Date()
+                }
+
+                const newEvent = new Events(event);
+                await newEvent.save();
+
+                const user = await User.findById( /*AndUpdate*/
+                    sID_User/*,
                     {
                         $set: {
                             nReplenishAmount: nAmountToReplenish
                         }
                     },
-                    {new: true}
+                    {new: true}*/
                 );
 
                 if (!user) {
@@ -465,15 +477,27 @@ function initSocketIO(server) {
         })
         socket.on('onWithdraw', async ({sID_User, nAmountToWithdraw, sWallet}) => {
             try {
-                const user = await User.findByIdAndUpdate(
-                    sID_User,
-                    {
+                const event = {
+                    userID: sID_User,
+                    sKey_Type: 'withdraw',
+                    bCompleted: false,
+                    nSum: nAmountToWithdraw,
+                    sWallet: sWallet,
+                    sDateTime: new Date()
+                }
+
+                const newEvent = new Events(event);
+                await newEvent.save();
+
+                const user = await User.findById( /*AndUpdate*/
+                    sID_User
+                    /*{
                         $set: {
                             nWithdrawAmount: nAmountToWithdraw,
                             sWithdrawWallet: sWallet
                         }
                     },
-                    {new: true}
+                    {new: true}*/
                 );
 
                 if (!user) {

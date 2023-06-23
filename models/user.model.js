@@ -13,9 +13,9 @@ const userSchema = new Schema({
   oVerificationDocuments: {type: [String], default: []},
   bVerificationDocumentsSubmitted: {type: Boolean, default: false, required: false},
   sVerificationConfirmed: {type: String, default: 'false', trim: true},
-  nReplenishAmount: {type: Number, default: 0},
+/*  nReplenishAmount: {type: Number, default: 0},
   nWithdrawAmount: {type: Number, default: 0},
-  sWithdrawWallet: {type: String, default: ''},
+  sWithdrawWallet: {type: String, default: ''},*/
   sProfilePhoto: {type: String, default: ''},
   bDemoAccount: {type: Boolean, default: false},
   sBalance_Demo: {type: String, default: '10000'},
