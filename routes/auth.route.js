@@ -384,14 +384,17 @@ router.get('/actualReplenishWallets', async (req, res) => {
 
 router.get('users/:id/events', async (req, res) => {
   const {id} = req.query
+  console.log(123123, 'id', id)
 
   try {
     const events = await Events.find({
       userID: id
     })
+    console.log(321321, 'events', events)
 
     res.status(200).json({events});
   }catch (err) {
+    console.log(2111111, 'err.message', err.message)
     res.status(500).json({message: err.message});
   }
 })
