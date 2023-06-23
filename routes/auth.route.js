@@ -382,7 +382,7 @@ router.get('/actualReplenishWallets', async (req, res) => {
   }
 })
 
-router.get('users/:id/events', async (req, res) => {
+router.get('/users/:id/events', async (req, res) => {
   const {id} = req.params;
 
   try {
