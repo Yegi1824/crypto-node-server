@@ -9,7 +9,7 @@ const eventSchema = new Schema({
     sConfirmed: {type: String, default: 'pending', enum: ['true', 'false', 'pending']},
     nSum: {type: Number, required: true, default: 0},
     sWallet: {type: String, required: false, default: ''},
-    sDateTime: {type: Date, default: Date.now}
+    sDateTime: {type: Date}
 });
 
 const Events = mongoose.model('Events', eventSchema);
