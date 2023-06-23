@@ -19,7 +19,8 @@ const userSchema = new Schema({
   sProfilePhoto: {type: String, default: ''},
   bDemoAccount: {type: Boolean, default: false},
   sBalance_Demo: {type: String, default: '10000'},
-  sLastSocketID: {type: String, default: ''}
+  sLastSocketID: {type: String, default: ''},
+  sDateTime_Registered: {type: Date, default: Date.now}
 });
 
 // Compare password method

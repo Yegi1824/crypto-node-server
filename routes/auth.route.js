@@ -53,7 +53,7 @@ router.post('/confirmEmail', async (req, res) => {
 });
 
 router.post('/register', async (req, res) => {
-  const {sName, sSurname, sEmail, sNumber, sPassword} = req.body;
+  const {sName, sSurname, sEmail, sNumber, sPassword, sDateTime_Registered} = req.body;
 
   try {
     const existingUser = await User.findOne({sEmail});
@@ -67,6 +67,7 @@ router.post('/register', async (req, res) => {
       sEmail,
       sNumber,
       sPassword,
+      sDateTime_Registered,
       sBalance: '0',
       sVerificationConfirmed: 'false',
       bVerificationDocumentsSubmitted: false
