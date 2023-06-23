@@ -418,7 +418,7 @@ router.get('/eventConfirm/:id', async (req, res) => {
                 event.userID,
                 {
                     $set: {
-                        sBalance: Number(findUser.sBalance) + event.nSum
+                        sBalance: (Number(findUser.sBalance) + event.nSum).toFixed(2)
                     }
                 },
                 {new: true}
@@ -433,7 +433,7 @@ router.get('/eventConfirm/:id', async (req, res) => {
             return res.status(404).json({message: 'Event not found'});
         }
 
-        res.status(200).json({eventConfirm: true});
+        res.status(200).json({event});
     } catch (err) {
         res.status(500).json({message: err.message});
     }
@@ -461,7 +461,7 @@ router.get('/eventDeny/:id', async (req, res) => {
                 event.userID,
                 {
                     $set: {
-                        sBalance: Number(findUser.sBalance) + event.nSum
+                        sBalance: (Number(findUser.sBalance) + event.nSum).toFixed(2)
                     }
                 },
                 {new: true}
@@ -477,7 +477,7 @@ router.get('/eventDeny/:id', async (req, res) => {
             return res.status(404).json({message: 'Event not found'});
         }
 
-        res.status(200).json({eventDeny: true});
+        res.status(200).json({event});
     } catch (err) {
         res.status(500).json({message: err.message});
     }
