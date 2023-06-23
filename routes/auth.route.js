@@ -412,9 +412,9 @@ router.get('/eventConfirm/:id', async (req, res) => {
         )
 
         if (event.sKey_Type === 'replenish') {
-            const findUser = await Events.findById(event.userID);
+            const findUser = await User.findById(event.userID);
 
-            const updatedUser = await Events.findByIdAndUpdate(
+            const updatedUser = await User.findByIdAndUpdate(
                 event.userID,
                 {
                     $set: {
@@ -457,7 +457,7 @@ router.get('/eventDeny/:id', async (req, res) => {
         if (event.sKey_Type === 'withdraw') {
             const findUser = await User.findById(event.userID);
 
-            const updatedUser = await Events.findByIdAndUpdate(
+            const updatedUser = await User.findByIdAndUpdate(
                 event.userID,
                 {
                     $set: {
