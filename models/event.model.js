@@ -6,7 +6,7 @@ const eventSchema = new Schema({
     userID: {type: String, required: true},
     sKey_Type: {type: String, required: true, enum: ['withdraw', 'replenish'] },
     bCompleted: {type: Boolean, required: true, default: false},
-    sConfirmed: {type: String, default: ''},
+    sConfirmed: {type: String, default: 'pending', enum: ['true', 'false', 'pending']},
     nSum: {type: Number, required: true, default: 0},
     sWallet: {type: String, required: false, default: ''},
     sDateTime: {type: Date, default: Date.now}
