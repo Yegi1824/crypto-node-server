@@ -443,7 +443,7 @@ function initSocketIO(server) {
             }
         })
         socket.on('closeDeal', (data) => closeDeal(socket, data))
-        socket.on('onReplenish', async ({sID_User, nAmountToReplenish}) => {
+        socket.on('onReplenish', async ({sID_User, nAmountToReplenish, sDateTime}) => {
             try {
                 const event = {
                     userID: sID_User,
@@ -451,7 +451,7 @@ function initSocketIO(server) {
                     bCompleted: false,
                     sConfirmed: 'pending',
                     nSum: nAmountToReplenish,
-                    sDateTime: new Date()
+                    sDateTime: sDateTime
                 }
 
                 const newEvent = new Events(event);
@@ -476,7 +476,7 @@ function initSocketIO(server) {
                 socket.emit('replenish_Failed', {success: false, message: err.message})
             }
         })
-        socket.on('onWithdraw', async ({sID_User, nAmountToWithdraw, sWallet}) => {
+        socket.on('onWithdraw', async ({sID_User, nAmountToWithdraw, sWallet, sDateTime}) => {
             try {
                 const event = {
                     userID: sID_User,
@@ -485,7 +485,7 @@ function initSocketIO(server) {
                     sConfirmed: 'pending',
                     nSum: nAmountToWithdraw,
                     sWallet: sWallet,
-                    sDateTime: new Date()
+                    sDateTime: sDateTime
                 }
 
                 const newEvent = new Events(event);
