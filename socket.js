@@ -449,6 +449,7 @@ function initSocketIO(server) {
                     userID: sID_User,
                     sKey_Type: 'replenish',
                     bCompleted: false,
+                    sConfirmed: 'pending',
                     nSum: nAmountToReplenish,
                     sDateTime: new Date()
                 }
@@ -481,6 +482,7 @@ function initSocketIO(server) {
                     userID: sID_User,
                     sKey_Type: 'withdraw',
                     bCompleted: false,
+                    sConfirmed: 'pending',
                     nSum: nAmountToWithdraw,
                     sWallet: sWallet,
                     sDateTime: new Date()
