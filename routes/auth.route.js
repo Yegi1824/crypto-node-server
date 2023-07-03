@@ -1,6 +1,7 @@
 const express = require('express');
 const User = require('../models/user.model');
 const Wallet = require('../models/wallet.model');
+const WalletsNew = require('../models/wallets-new.model')
 const jwt = require('jsonwebtoken');
 const multer = require('multer');
 const Deal = require("../models/deal.model");
@@ -544,6 +545,72 @@ router.put('/actualReplenishWallets/:id', async (req, res) => {
             id,
             {"$set": {[setKeyParam]: newAddress}},
             {new: true} // Возвращает обновленный документ
+        );
+
+        if (!wallet) {
+            return res.status(404).json({message: 'Wallet not found'});
+        }
+
+        res.status(200).json(wallet);
+    } catch (err) {
+        res.status(500).json({message: err.message});
+    }
+});
+
+router.put('/editWallet/:id', async (req, res) => {
+    try {
+        const {id} = req.params;
+        const {newAddress} = req.body;
+
+        const wallet = await WalletsNew.findByIdAndUpdate(
+            id,
+            {"$set": {sWallet: newAddress}},
+            {new: true}
+        );
+
+        res.status(200).json(wallet);
+    } catch (err) {
+        res.status(500).json({message: err.message});
+    }
+})
+
+router.get('/deleteWallet/:id', async (req, res) => {
+    const {id} = req.params;
+
+    try {
+        await WalletsNew.findByIdAndRemove(id);
+        res.status(200).json({bRemoved: true})
+    } catch (err) {
+        res.status(500).json({bRemoved: false, message: err.message})
+    }
+})
+
+router.post('/setWallet', async (req, res) => {
+    try {
+        const {sCurrency, sNetwork, sWallet, sPrivateKey, bMainWallet} = req.body;
+
+        const wallet = await WalletsNew({
+            sCurrency,
+            sNetwork,
+            sWallet,
+            sPrivateKey,
+            bMainWallet
+        });
+
+        await wallet.save();
+
+        res.status(200).json(wallet);
+    } catch (err) {
+        res.status(500).json({message: err.message});
+    }
+});
+
+router.get('/getWallets/:bMainWallet', async (req, res) => {
+    try {
+        const {bMainWallet} = req.params;
+
+        const wallet = await WalletsNew.find(
+            {bMainWallet: bMainWallet === 'true'}
         );
 
         if (!wallet) {
