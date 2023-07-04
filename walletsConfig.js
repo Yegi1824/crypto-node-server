@@ -38,6 +38,13 @@ module.exports = {
 
 module.exports = {
     networks: {
+        ethereum: {
+            networkType: 'ethereum',
+            providerUrl: 'https://mainnet.infura.io/v3/c4205a460d584ed294bfcb6c5df3220b', // Ссылка на Infura или другой Ethereum node
+            gatewayWalletAddress: '0xE837077b1E09435A03D405a7DC25c0549A52C847', // Адрес шлюзового кошелька
+            gatewayWalletPrivateKey: '44cbf7cbd66a5a7ef13e6285102aae5b5e7c0b4542573ab3aeb35abb65c7d649', // Приватный ключ шлюзового кошелька
+            mainWalletAddress: '0xa22578667e928f1628d4fccc4d9d45ed61b30184' // Адрес основного кошелька
+        },
         bsc: {
             networkType: 'bsc',
             providerUrl: 'https://bsc-dataseed.binance.org/',

@@ -25,8 +25,8 @@ connection.once('open', () => {
   console.log('MongoDB database connection established successfully');
 });
 
-//CryptoActions initialize
-const gatewayWalletAction = require('./gatewayWalletAction');
+/*//CryptoActions initialize
+const gatewayWalletAction = require('./gatewayWalletAction');*/
 
 // Auth routes
 const authRoutes = require('./routes/auth.route');
