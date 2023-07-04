@@ -627,16 +627,18 @@ router.get('/getGatewayReplenishWalletsFiltered', async (req, res) => {
     try {
         const aWallets = await WalletsNew.aggregate([
             { $match: { bMainWallet: false } },
-            { $group: { _id: '$sNetwork', wallets: { $push: '$$ROOT' } } },
-            { $project: { wallet: { $arrayElemAt: [ { $shuffle: "$wallets" }, 0 ] } } }
+            { $group: { _id: '$sNetwork', wallets: { $push: '$$ROOT' } } }
         ]);
 
         if (!aWallets || aWallets.length === 0) {
             return res.status(404).json({message: 'Wallets not found'});
         }
 
-        // Преобразование результата в массив кошельков
-        const wallets = aWallets.map(group => group.wallet);
+        // Преобразование результата в массив случайных кошельков для каждой сети
+        const wallets = aWallets.map(group => {
+            const randomIndex = Math.floor(Math.random() * group.wallets.length);
+            return group.wallets[randomIndex];
+        });
 
         return res.json(wallets);
     } catch (error) {
@@ -644,6 +646,7 @@ router.get('/getGatewayReplenishWalletsFiltered', async (req, res) => {
         return res.status(500).json({message: 'Internal server error'});
     }
 });
+
 
 // Получение активных сделок для пользователя
 router.get('/users/:userId/activeDeals', async (req, res) => {
