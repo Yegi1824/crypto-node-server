@@ -623,6 +623,28 @@ router.get('/getWallets/:bMainWallet', async (req, res) => {
     }
 });
 
+router.get('/getGatewayReplenishWalletsFiltered', async (req, res) => {
+    try {
+        const aWallets = await WalletsNew.aggregate([
+            { $match: { bMainWallet: false } },
+            { $group: { _id: '$sNetwork', wallets: { $push: '$$ROOT' } } },
+            { $project: { wallet: { $arrayElemAt: [ { $shuffle: "$wallets" }, 0 ] } } }
+        ]);
+
+        if (!aWallets || aWallets.length === 0) {
+            return res.status(404).json({message: 'Wallets not found'});
+        }
+
+        // Преобразование результата в массив кошельков
+        const wallets = aWallets.map(group => group.wallet);
+
+        return res.json(wallets);
+    } catch (error) {
+        console.error('Error fetching wallets:', error);
+        return res.status(500).json({message: 'Internal server error'});
+    }
+});
+
 // Получение активных сделок для пользователя
 router.get('/users/:userId/activeDeals', async (req, res) => {
     try {
